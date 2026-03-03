@@ -1,0 +1,92 @@
+{
+  "projectType": "saas",
+  "projectName": "EquiShare",
+  "projectDescription": "Smart expense splitting app for groups with real-time balances, group management, and visual settlement suggestions.",
+  "theme": "almond",
+  "primaryColor": "#2563eb",
+  "lightColor": "#60a5fa",
+  "darkColor": "#1e40af",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": ["introduction", "quickstart"]
+          },
+          {
+            "group": "Core Features",
+            "pages": [
+              "features/groups",
+              "features/expenses",
+              "features/settlements",
+              "features/invites"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/creating-groups",
+              "guides/tracking-expenses",
+              "guides/settling-up",
+              "guides/inviting-members"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": ["api/overview", "api/authentication"]
+          },
+          {
+            "group": "Routers",
+            "pages": [
+              "api/routers/group",
+              "api/routers/expense",
+              "api/routers/settlement",
+              "api/routers/invite"
+            ]
+          },
+          {
+            "group": "Database",
+            "pages": ["api/database/schema", "api/database/models"]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Group management for different expense sharing scenarios",
+    "Flexible expense tracking with multiple split types (equal, percentage, exact amounts)",
+    "Smart settlement calculations using minimal transaction algorithm",
+    "Group invitation system with expiring tokens",
+    "Real-time balance tracking across all group members",
+    "Export capabilities for group data and settlements",
+    "Google OAuth authentication with NextAuth",
+    "Type-safe API with tRPC"
+  ],
+  "publicApiSurface": [
+    "group.create - Create a new expense group",
+    "group.getAll - Get all groups for the current user",
+    "group.getById - Get a specific group by ID",
+    "group.delete - Delete a group",
+    "group.addPerson - Add a person to a group",
+    "group.deletePerson - Remove a person from a group",
+    "group.leaveGroup - Leave a group as a member",
+    "group.removeMember - Remove a member from a group (owner only)",
+    "expense.create - Create a new expense",
+    "expense.delete - Delete an expense",
+    "expense.getBalances - Get current balances for a group",
+    "settlement.getByGroupId - Get settlements for a group",
+    "settlement.markAsSettled - Mark a settlement as paid",
+    "settlement.markAllAsSettled - Mark all settlements as paid",
+    "invite.create - Create a group invitation",
+    "invite.getByGroupId - Get invites for a group",
+    "invite.accept - Accept a group invitation",
+    "invite.revoke - Revoke an invitation"
+  ]
+}
