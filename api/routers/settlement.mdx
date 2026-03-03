@@ -1,0 +1,276 @@
+---
+title: 'Settlement Router'
+description: 'API reference for the settlement router - manage debt settlements and balance optimization'
+---
+
+## Overview
+
+The settlement router handles debt settlement operations. Settlements are automatically calculated using an optimization algorithm that minimizes the number of transactions needed to balance all debts in a group.
+
+**Authorization:** All procedures require authentication (`protectedProcedure`)
+
+---
+
+## list
+
+Get all settlements for a group, both settled and unsettled.
+
+### Input
+
+<ParamField path="groupId" type="string" required>
+  ID of the group to retrieve settlements for
+</ParamField>
+
+### Returns
+
+Array of settlement objects ordered by settlement status (unsettled first) and creation date (newest first):
+
+<ResponseField name="id" type="string">
+  Unique identifier for the settlement
+</ResponseField>
+
+<ResponseField name="groupId" type="string">
+  ID of the group
+</ResponseField>
+
+<ResponseField name="expenseId" type="string">
+  ID of the associated expense
+</ResponseField>
+
+<ResponseField name="fromId" type="string">
+  Person ID who owes money
+</ResponseField>
+
+<ResponseField name="toId" type="string">
+  Person ID who is owed money
+</ResponseField>
+
+<ResponseField name="amount" type="number">
+  Amount to be settled
+</ResponseField>
+
+<ResponseField name="settled" type="boolean">
+  Whether this settlement has been marked as paid
+</ResponseField>
+
+<ResponseField name="from" type="Person">
+  Full person object of the debtor
+</ResponseField>
+
+<ResponseField name="to" type="Person">
+  Full person object of the creditor
+</ResponseField>
+
+<ResponseField name="expense" type="object">
+  Expense description
+</ResponseField>
+
+<ResponseField name="createdAt" type="Date">
+  When the settlement was created
+</ResponseField>
+
+### Authorization
+
+User must have access to the group (owner or member).
+
+### Example
+
+```typescript
+const settlements = await trpc.settlement.list.query({
+  groupId: "group_id_123"
+});
+
+settlements.forEach(s => {
+  if (!s.settled) {
+    console.log(`${s.from.name} owes ${s.to.name} $${s.amount.toFixed(2)}`);
+  }
+});
+
+// Example output:
+// Bob owes Alice $45.00
+// Charlie owes Alice $30.00
+```
+
+---
+
+## settle
+
+Mark a single settlement as paid. This updates the expense's settled amount and recalculates all settlements.
+
+### Input
+
+<ParamField path="id" type="string" required>
+  Settlement ID to mark as settled
+</ParamField>
+
+### Returns
+
+<ResponseField name="success" type="boolean">
+  Always returns `true` on success
+</ResponseField>
+
+<ResponseField name="settlement" type="Settlement">
+  The updated settlement object with `settled: true`
+</ResponseField>
+
+### Authorization
+
+User must have access to the group containing the settlement.
+
+### Side Effects
+
+1. Updates the settlement's `settled` field to `true`
+2. Aggregates all settled amounts for the associated expense
+3. Updates the expense's `settledAmount` field
+4. Calls `computeAndUpsertSettlements()` to recalculate remaining settlements
+
+### Example
+
+```typescript
+const result = await trpc.settlement.settle.mutate("settlement_id_123");
+
+if (result.success) {
+  console.log("Payment recorded successfully");
+}
+```
+
+---
+
+## settleAll
+
+Mark all unsettled settlements in a group as paid. This is typically used when all debts have been cleared.
+
+### Input
+
+<ParamField path="id" type="string" required>
+  Group ID to settle all settlements for
+</ParamField>
+
+### Returns
+
+<ResponseField name="success" type="boolean">
+  Always returns `true` on success
+</ResponseField>
+
+<ResponseField name="count" type="number">
+  Number of settlements that were marked as settled
+</ResponseField>
+
+### Authorization
+
+User must have access to the group (owner or member).
+
+### Side Effects
+
+1. Updates all unsettled settlements in the group to `settled: true`
+2. Updates `settledAmount` for all expenses in the group
+3. Calls `computeAndUpsertSettlements()` to recalculate (should result in no outstanding settlements)
+
+### Example
+
+```typescript
+const result = await trpc.settlement.settleAll.mutate("group_id_123");
+
+console.log(`Marked ${result.count} settlements as paid`);
+```
+
+---
+
+## recompute
+
+Manually trigger settlement recalculation for a group. This is automatically called after expense and settlement operations, but can be manually invoked if needed.
+
+### Input
+
+<ParamField path="id" type="string" required>
+  Group ID to recompute settlements for
+</ParamField>
+
+### Returns
+
+Result from the `computeAndUpsertSettlements` utility function.
+
+### Settlement Computation Algorithm
+
+The settlement algorithm:
+1. Calculates net balance for each person (money owed minus money paid)
+2. Separates people into creditors (positive balance) and debtors (negative balance)
+3. Uses a greedy algorithm to minimize the number of transactions:
+   - Matches the largest debtor with the largest creditor
+   - Creates a settlement for the minimum of the two amounts
+   - Continues until all balances are zero
+
+### Example
+
+```typescript
+const result = await trpc.settlement.recompute.mutate("group_id_123");
+```
+
+### Use Cases
+
+- Debugging settlement calculations
+- Manually refreshing settlements after data changes
+- Testing settlement optimization
+
+---
+
+## Understanding Settlements
+
+### Settlement Lifecycle
+
+1. **Creation:** Settlements are automatically created when expenses are added
+2. **Optimization:** The system calculates the minimum number of transactions needed
+3. **Settling:** Users mark settlements as paid when money is transferred
+4. **Recalculation:** Remaining settlements are recalculated after each payment
+
+### Example: Settlement Flow
+
+```typescript
+// Step 1: Create expenses
+await trpc.expense.create.mutate({
+  groupId: "group_123",
+  description: "Dinner",
+  amount: 90,
+  paidById: "alice",
+  shares: [
+    { personId: "alice", type: "EQUAL" },
+    { personId: "bob", type: "EQUAL" },
+    { personId: "charlie", type: "EQUAL" }
+  ]
+});
+// Settlements are automatically created:
+// - Bob owes Alice $30
+// - Charlie owes Alice $30
+
+// Step 2: Check settlements
+const settlements = await trpc.settlement.list.query({ groupId: "group_123" });
+console.log(`${settlements.length} payments needed`);
+
+// Step 3: Record payment
+await trpc.settlement.settle.mutate(settlements[0].id);
+// Marks Bob's payment as complete
+
+// Step 4: Settle all remaining
+await trpc.settlement.settleAll.mutate("group_123");
+// All debts are now cleared
+```
+
+### Settlement Optimization Example
+
+Without optimization:
+```
+Alice paid $100, Bob paid $0, Charlie paid $0
+→ Bob pays Alice $50, Charlie pays Alice $50 (2 transactions)
+```
+
+With complex balances:
+```
+Alice paid $100, owes $20 → net: +$80
+Bob paid $40, owes $60 → net: -$20
+Charlie paid $10, owes $70 → net: -$60
+
+→ Optimized settlements:
+   Charlie pays Alice $60 (1 transaction)
+   Bob pays Alice $20 (1 transaction)
+   Total: 2 transactions instead of 6
+```

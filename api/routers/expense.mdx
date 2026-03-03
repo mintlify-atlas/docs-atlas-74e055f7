@@ -1,0 +1,283 @@
+---
+title: 'Expense Router'
+description: 'API reference for the expense router - create expenses, calculate balances, and manage shares'
+---
+
+## Overview
+
+The expense router handles expense creation, deletion, and balance calculations. It supports three types of expense sharing: equal splits, percentage-based splits, and exact amount splits.
+
+**Authorization:** All procedures require authentication (`protectedProcedure`)
+
+---
+
+## create
+
+Create a new expense with specified shares. Automatically recomputes settlements after creation.
+
+### Input
+
+<ParamField path="groupId" type="string" required>
+  ID of the group this expense belongs to
+</ParamField>
+
+<ParamField path="description" type="string" required>
+  Description of the expense (minimum 1 character)
+</ParamField>
+
+<ParamField path="amount" type="number" required>
+  Total amount of the expense (must be positive)
+</ParamField>
+
+<ParamField path="paidById" type="string" required>
+  Person ID of who paid for the expense
+</ParamField>
+
+<ParamField path="shares" type="Share[]" required>
+  Array of share objects defining how the expense is split
+</ParamField>
+
+#### Share Object
+
+<ParamField path="shares[].personId" type="string" required>
+  Person ID who owes this share
+</ParamField>
+
+<ParamField path="shares[].type" type="enum" required>
+  Type of share calculation: `"EQUAL"`, `"PERCENT"`, or `"EXACT"`
+</ParamField>
+
+<ParamField path="shares[].value" type="number" optional>
+  Required for `PERCENT` (0-100) and `EXACT` (positive number) types. Ignored for `EQUAL`.
+</ParamField>
+
+### Returns
+
+<ResponseField name="id" type="string">
+  Unique identifier for the created expense
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  Description of the expense
+</ResponseField>
+
+<ResponseField name="amount" type="number">
+  Total amount of the expense
+</ResponseField>
+
+<ResponseField name="groupId" type="string">
+  ID of the group
+</ResponseField>
+
+<ResponseField name="paidById" type="string">
+  Person ID of the payer
+</ResponseField>
+
+<ResponseField name="paidBy" type="Person">
+  Full person object of the payer
+</ResponseField>
+
+<ResponseField name="shares" type="Share[]">
+  Array of calculated shares with person details
+</ResponseField>
+
+### Share Calculation Logic
+
+**EQUAL:** Divides the expense amount equally among all participants with `type: "EQUAL"`
+```typescript
+shareAmount = totalAmount / numberOfEqualShares
+```
+
+**PERCENT:** Calculates share as a percentage of the total
+```typescript
+shareAmount = totalAmount * (value / 100)
+```
+
+**EXACT:** Uses the specified exact amount
+```typescript
+shareAmount = value
+```
+
+### Validation Rules
+
+1. User must have access to the group (owner or member)
+2. Payer must be a person in the group
+3. All share participants must belong to the group
+4. Total shares must equal expense amount (with 0.01 tolerance for floating point)
+5. `PERCENT` and `EXACT` types require a `value` field
+
+### Side Effects
+
+Automatically calls `computeAndUpsertSettlements()` to recalculate optimal settlements for the group.
+
+### Example: Equal Split
+
+```typescript
+// Split $120 equally among 3 people
+const expense = await trpc.expense.create.mutate({
+  groupId: "group_123",
+  description: "Dinner at restaurant",
+  amount: 120,
+  paidById: "person_alice",
+  shares: [
+    { personId: "person_alice", type: "EQUAL" },
+    { personId: "person_bob", type: "EQUAL" },
+    { personId: "person_charlie", type: "EQUAL" }
+  ]
+});
+// Each person owes $40
+```
+
+### Example: Percentage Split
+
+```typescript
+// Split based on percentages
+const expense = await trpc.expense.create.mutate({
+  groupId: "group_123",
+  description: "Shared apartment rent",
+  amount: 2000,
+  paidById: "person_alice",
+  shares: [
+    { personId: "person_alice", type: "PERCENT", value: 50 },  // $1000
+    { personId: "person_bob", type: "PERCENT", value: 30 },    // $600
+    { personId: "person_charlie", type: "PERCENT", value: 20 } // $400
+  ]
+});
+```
+
+### Example: Exact Amounts
+
+```typescript
+// Split with exact amounts
+const expense = await trpc.expense.create.mutate({
+  groupId: "group_123",
+  description: "Groceries",
+  amount: 85.50,
+  paidById: "person_alice",
+  shares: [
+    { personId: "person_alice", type: "EXACT", value: 30.00 },
+    { personId: "person_bob", type: "EXACT", value: 25.50 },
+    { personId: "person_charlie", type: "EXACT", value: 30.00 }
+  ]
+});
+```
+
+### Example: Mixed Share Types
+
+```typescript
+// Combine EQUAL and EXACT shares
+const expense = await trpc.expense.create.mutate({
+  groupId: "group_123",
+  description: "Event tickets",
+  amount: 200,
+  paidById: "person_alice",
+  shares: [
+    { personId: "person_alice", type: "EXACT", value: 80 },  // Owes exactly $80
+    { personId: "person_bob", type: "EQUAL" },               // Splits remaining $120
+    { personId: "person_charlie", type: "EQUAL" }            // Splits remaining $120
+  ]
+});
+// Bob and Charlie each owe $60
+```
+
+---
+
+## delete
+
+Delete an expense and recalculate settlements for the group.
+
+### Input
+
+<ParamField path="id" type="string" required>
+  Expense ID to delete
+</ParamField>
+
+### Returns
+
+<ResponseField name="success" type="boolean">
+  Always returns `true` on successful deletion
+</ResponseField>
+
+### Authorization
+
+User must have access to the group that contains the expense.
+
+### Side Effects
+
+1. Deletes all settlements associated with the expense
+2. Deletes the expense
+3. Calls `computeAndUpsertSettlements()` to recalculate settlements
+
+### Example
+
+```typescript
+await trpc.expense.delete.mutate("expense_id_123");
+```
+
+---
+
+## getBalances
+
+Calculate and return the current balance for each person in a group. Positive balance means the person is owed money, negative means they owe money.
+
+### Input
+
+<ParamField path="id" type="string" required>
+  Group ID to calculate balances for
+</ParamField>
+
+### Returns
+
+Array of balance objects (only includes people with non-zero balances):
+
+<ResponseField name="personId" type="string">
+  Person ID
+</ResponseField>
+
+<ResponseField name="balance" type="number">
+  Current balance (positive = owed money, negative = owes money)
+</ResponseField>
+
+<ResponseField name="person" type="Person">
+  Person details (id, name)
+</ResponseField>
+
+### Balance Calculation Logic
+
+For each person:
+1. Start with balance = 0
+2. For each expense:
+   - If person paid: balance += expense amount
+   - If person has shares: balance -= sum of share amounts
+3. Filter out balances within ±0.01 (floating point tolerance)
+
+### Authorization
+
+User must have access to the group (owner or member).
+
+### Example
+
+```typescript
+const balances = await trpc.expense.getBalances.query("group_id_123");
+
+balances.forEach(({ person, balance }) => {
+  if (balance > 0) {
+    console.log(`${person.name} is owed $${balance.toFixed(2)}`);
+  } else {
+    console.log(`${person.name} owes $${Math.abs(balance).toFixed(2)}`);
+  }
+});
+
+// Example output:
+// Alice is owed $45.50
+// Bob owes $20.00
+// Charlie owes $25.50
+```
+
+### Example: Zero Balance Scenario
+
+```typescript
+// If a group has no expenses or all balances are settled
+const balances = await trpc.expense.getBalances.query("group_id_789");
+console.log(balances); // []
+```

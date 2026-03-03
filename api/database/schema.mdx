@@ -1,0 +1,286 @@
+---
+title: 'Database Schema'
+description: 'Complete database schema structure for EquiShare'
+icon: 'database'
+---
+
+## Overview
+
+EquiShare uses PostgreSQL as its database with Prisma as the ORM. The schema is designed to support expense sharing, group management, authentication, and a flexible invitation system.
+
+## Key Design Decisions
+
+<Info>
+  **Person vs User Separation**: The schema separates `Person` (participants in expense groups) from `User` (authenticated users). This allows:
+  - Groups to include people without app accounts
+  - Flexibility in managing expenses before inviting users
+  - Simplified expense tracking for non-registered participants
+</Info>
+
+### Core Entity Relationships
+
+The database follows these key relationships:
+
+- **Users** can create and be members of multiple **Groups**
+- Each **Group** contains multiple **People** (participants)
+- **Expenses** are paid by one **Person** and split among multiple **People** via **Shares**
+- **Settlements** track payments between **People** to balance expenses
+- **GroupInvites** manage the invitation system with token-based access
+
+## Schema Structure
+
+```mermaid
+erDiagram
+    User ||--o{ Group : creates
+    User ||--o{ Account : has
+    User ||--o{ Session : has
+    User ||--o{ GroupInvite : sends
+    User ||--o{ GroupInvite : receives
+    User }o--o{ Group : member_of
+    
+    Group ||--o{ Person : contains
+    Group ||--o{ Expense : has
+    Group ||--o{ Settlement : tracks
+    Group ||--o{ GroupInvite : has
+    
+    Person ||--o{ Expense : pays
+    Person ||--o{ Share : owes
+    Person ||--o{ Settlement : from
+    Person ||--o{ Settlement : to
+    
+    Expense ||--o{ Share : split_into
+    Expense ||--o{ Settlement : generates
+```
+
+## Complete Prisma Schema
+
+```prisma
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+// Authentication Models (Next-Auth)
+model Account {
+    id                       String  @id @default(cuid())
+    userId                   String
+    type                     String
+    provider                 String
+    providerAccountId        String
+    refresh_token            String?
+    access_token             String?
+    expires_at               Int?
+    token_type               String?
+    scope                    String?
+    id_token                 String?
+    session_state            String?
+    user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    refresh_token_expires_in Int?
+
+    @@unique([provider, providerAccountId])
+}
+
+model Session {
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+    id              String          @id @default(cuid())
+    name            String?
+    email           String?         @unique
+    emailVerified   DateTime?
+    image           String?
+    accounts        Account[]
+    sessions        Session[]
+    groups          Group[]
+    sentInvites     GroupInvite[]   @relation("SentInvites")
+    receivedInvites GroupInvite[]   @relation("ReceivedInvites")
+    sharedGroups    Group[]         @relation("GroupMembers")
+}
+
+model VerificationToken {
+    identifier String
+    token      String   @unique
+    expires    DateTime
+
+    @@unique([identifier, token])
+}
+
+// Core Application Models
+model Group {
+    id          String       @id @default(cuid())
+    name        String
+    createdAt   DateTime     @default(now())
+    updatedAt   DateTime     @updatedAt
+    createdBy   User         @relation(fields: [createdById], references: [id])
+    createdById String
+    people      Person[]
+    expenses    Expense[]
+    settlements Settlement[]
+    members     User[]       @relation("GroupMembers")
+    invites     GroupInvite[]
+
+    @@index([createdById])
+}
+
+model GroupInvite {
+    id              String       @id @default(cuid())
+    groupId         String
+    invitedByUserId String
+    inviteToken     String       @unique
+    status          InviteStatus @default(PENDING)
+    expiresAt       DateTime
+    createdAt       DateTime     @default(now())
+    updatedAt       DateTime     @updatedAt
+    maxUses         Int          @default(10)
+    remainingUses   Int          @default(10)
+    group           Group        @relation(fields: [groupId], references: [id], onDelete: Cascade)
+    invitedBy       User         @relation("SentInvites", fields: [invitedByUserId], references: [id], onDelete: Cascade)
+    usedBy          User?        @relation("ReceivedInvites", fields: [invitedUserId], references: [id], onDelete: SetNull)
+    invitedUserId   String?
+
+    @@index([groupId])
+    @@index([inviteToken])
+    @@index([invitedByUserId])
+    @@index([invitedUserId])
+}
+
+enum InviteStatus {
+    PENDING
+    ACCEPTED
+    REJECTED
+    EXPIRED
+    USED
+}
+
+model Person {
+    id              String       @id @default(cuid())
+    name            String
+    createdAt       DateTime     @default(now())
+    updatedAt       DateTime     @updatedAt
+    group           Group        @relation(fields: [groupId], references: [id], onDelete: Cascade)
+    groupId         String
+    paidExpenses    Expense[]    @relation("PaidBy")
+    shares          Share[]
+    fromSettlements Settlement[] @relation("SettlementFrom")
+    toSettlements   Settlement[] @relation("SettlementTo")
+
+    @@index([groupId])
+}
+
+model Expense {
+    id            String       @id @default(cuid())
+    description   String
+    amount        Float
+    createdAt     DateTime     @default(now())
+    updatedAt     DateTime     @updatedAt
+    settledAmount Float        @default(0)
+    group         Group        @relation(fields: [groupId], references: [id], onDelete: Cascade)
+    groupId       String
+    paidBy        Person       @relation("PaidBy", fields: [paidById], references: [id])
+    paidById      String
+    shares        Share[]
+    settlements   Settlement[]
+
+    @@index([groupId])
+    @@index([paidById])
+    @@index([groupId, settledAmount])
+}
+
+model Share {
+    id        String   @id @default(cuid())
+    amount    Float
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    expense   Expense  @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+    expenseId String
+    person    Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
+    personId  String
+
+    @@unique([expenseId, personId])
+    @@index([expenseId])
+    @@index([personId])
+}
+
+model Settlement {
+    id        String   @id @default(cuid())
+    amount    Float
+    settled   Boolean  @default(false)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+    groupId   String
+    from      Person   @relation("SettlementFrom", fields: [fromId], references: [id])
+    fromId    String
+    to        Person   @relation("SettlementTo", fields: [toId], references: [id])
+    toId      String
+    expense   Expense  @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+    expenseId String
+
+    @@index([groupId])
+    @@index([fromId])
+    @@index([toId])
+}
+```
+
+## InviteStatus Enum
+
+The `InviteStatus` enum tracks the lifecycle of group invitations:
+
+<Accordion title="InviteStatus Values">
+  <ResponseField name="PENDING" type="enum value">
+    Initial state when an invite is created. The invite link can be used.
+  </ResponseField>
+
+  <ResponseField name="ACCEPTED" type="enum value">
+    User has accepted the invitation and joined the group.
+  </ResponseField>
+
+  <ResponseField name="REJECTED" type="enum value">
+    User has explicitly declined the invitation.
+  </ResponseField>
+
+  <ResponseField name="EXPIRED" type="enum value">
+    Invite has passed its expiration date and can no longer be used.
+  </ResponseField>
+
+  <ResponseField name="USED" type="enum value">
+    Invite has been used up (reached maxUses limit).
+  </ResponseField>
+</Accordion>
+
+## Indexes and Performance
+
+<Note>
+  The schema includes strategic indexes on:
+  - Foreign key relationships (groupId, userId, etc.)
+  - Frequently queried fields (inviteToken, createdById)
+  - Composite indexes for common query patterns (groupId + settledAmount)
+</Note>
+
+### Key Indexes
+
+- **Group**: `createdById` - Fast lookup of user's created groups
+- **GroupInvite**: `inviteToken`, `groupId`, `invitedByUserId`, `invitedUserId` - Quick invite validation
+- **Person**: `groupId` - Efficient group member queries
+- **Expense**: `groupId`, `paidById`, `(groupId, settledAmount)` - Optimized expense queries
+- **Share**: `expenseId`, `personId` - Fast share lookups
+- **Settlement**: `groupId`, `fromId`, `toId` - Efficient balance calculations
+
+## Cascade Deletion Strategy
+
+<Info>
+  The schema uses `onDelete: Cascade` to maintain referential integrity:
+  - Deleting a **Group** removes all associated People, Expenses, Settlements, and Invites
+  - Deleting an **Expense** removes all Shares and Settlements for that expense
+  - Deleting a **User** removes their Accounts and Sessions
+  - Deleting a **Person** cascades to their Shares and Settlements
+</Info>

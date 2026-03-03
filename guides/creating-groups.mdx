@@ -1,0 +1,216 @@
+---
+title: 'Creating Groups'
+description: 'Step-by-step guide to creating a new group and adding initial members'
+icon: 'users'
+---
+
+## Overview
+
+Groups are the foundation of expense sharing in EquiShare. A group brings together people who share expenses, whether it's roommates splitting rent, friends on a trip, or colleagues organizing team lunches.
+
+<Note>
+  You must be signed in to create a group. Groups you create are automatically added to your dashboard.
+</Note>
+
+## Creating Your First Group
+
+<Steps>
+  <Step title="Open the Create Group Dialog">
+    From your dashboard, click the **Create New Group** button. This opens a dialog where you'll configure your new group.
+    
+    <Tip>
+      You can create as many groups as you need. There's no limit to the number of groups you can manage.
+    </Tip>
+  </Step>
+
+  <Step title="Enter a Group Name">
+    Choose a descriptive name for your group. Good examples include:
+    
+    - "Weekend Trip to Goa"
+    - "Apartment 3B Roommates"
+    - "Office Lunch Club"
+    - "Family Vacation 2026"
+    
+    The group name helps you quickly identify the group in your dashboard, especially when you're managing multiple groups.
+    
+    <Info>
+      Group names can be changed later if needed, so don't worry about getting it perfect the first time.
+    </Info>
+  </Step>
+
+  <Step title="Add People (Optional)">
+    You can add initial members to your group during creation. Enter each person's name and click the plus button or press **Enter** to add them.
+    
+    **Adding people:**
+    1. Type a person's name in the input field
+    2. Press **Enter** or click the **+** button
+    3. Repeat for each additional person
+    4. Remove anyone by clicking the **X** on their badge
+    
+    <Tip>
+      You can add people later, so it's okay to start with just yourself or a few people and invite others afterward.
+    </Tip>
+    
+    <Warning>
+      Make sure names are spelled correctly and consistently. Each person should have one unique entry to ensure accurate expense tracking.
+    </Warning>
+  </Step>
+
+  <Step title="Create the Group">
+    Once you've entered the group name (and optionally added people), click **Create Group**. You'll be automatically redirected to your new group's page.
+    
+    The system will:
+    - Create the group with you as the owner
+    - Add all specified people to the group
+    - Initialize the group with zero expenses and zero settlements
+  </Step>
+</Steps>
+
+## Understanding Group Roles
+
+EquiShare has two types of group participants:
+
+### Group Owner
+- Creates and owns the group
+- Can delete the group
+- Can add or remove members
+- Can add or remove people (non-registered participants)
+- Has full access to all group features
+
+### Group Members
+- Added via invite links
+- Can view all expenses and settlements
+- Can add expenses
+- Can mark settlements as paid
+- Cannot delete the group
+- Can leave the group at any time
+
+<Info>
+  "People" are participants in expenses (they can be added by name without registration). "Members" are registered users who have accepted an invite to join the group.
+</Info>
+
+## Managing People in Your Group
+
+After creating a group, you can manage the people who participate in expenses.
+
+### Adding More People
+
+<Steps>
+  <Step title="Navigate to Group Settings">
+    From your group's page, access the people management section.
+  </Step>
+  
+  <Step title="Add New Person">
+    Enter the person's name and add them to the group. They'll immediately be available when creating expenses.
+  </Step>
+</Steps>
+
+### Removing People
+
+<Warning>
+  You cannot remove a person who has been part of any expense or settlement. This prevents data inconsistencies and maintains accurate financial records.
+</Warning>
+
+To remove a person who hasn't been part of any expenses:
+1. Click the remove button next to their name
+2. Confirm the deletion
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use Descriptive Group Names">
+    Choose names that clearly indicate the group's purpose. Include dates for time-specific events ("Summer 2026 Road Trip") or locations for ongoing shared expenses ("Downtown Apartment - Unit 42").
+  </Accordion>
+  
+  <Accordion title="Add All Known Participants Upfront">
+    If you know everyone who'll share expenses, add them during group creation. This saves time later and ensures everyone is ready when you start tracking expenses.
+  </Accordion>
+  
+  <Accordion title="Use Consistent Names">
+    Always use the same name format for each person. If you start with "John Smith," don't later use "John" or "J. Smith" - pick one format and stick with it.
+  </Accordion>
+  
+  <Accordion title="Create Separate Groups for Different Contexts">
+    Don't mix unrelated expenses. Create separate groups for:
+    - Different trips or events
+    - Different households
+    - Different friend groups
+    - Work expenses vs. personal expenses
+  </Accordion>
+</AccordionGroup>
+
+## Real-World Examples
+
+### Example 1: Weekend Trip
+
+**Scenario:** You're planning a weekend getaway with 4 friends.
+
+**Setup:**
+1. Create group: "Beach Weekend - March 2026"
+2. Add people: Sarah, Mike, Emma, Chris
+3. Start tracking expenses immediately
+
+### Example 2: Shared Apartment
+
+**Scenario:** Three roommates sharing rent and utilities.
+
+**Setup:**
+1. Create group: "Apartment 5C - Oak Street"
+2. Add people: Alex, Jordan, Casey
+3. Use for recurring monthly expenses
+
+### Example 3: Office Team Lunches
+
+**Scenario:** Your team takes turns buying lunch for everyone.
+
+**Setup:**
+1. Create group: "Marketing Team Lunches"
+2. Add all team members
+3. Track who paid and split costs equally
+
+## API Reference
+
+For developers integrating with EquiShare, see the [Group Router API](/api/routers/group) documentation for details on:
+- `group.create` - Create a new group
+- `group.addPerson` - Add people to existing groups
+- `group.deletePerson` - Remove people from groups
+
+## Next Steps
+
+Now that you've created your group:
+
+<CardGroup cols={2}>
+  <Card title="Track Expenses" icon="receipt" href="/guides/tracking-expenses">
+    Learn how to add expenses and split costs among group members.
+  </Card>
+  
+  <Card title="Invite Members" icon="user-plus" href="/guides/inviting-members">
+    Generate invite links to add registered users to your group.
+  </Card>
+  
+  <Card title="Settle Up" icon="handshake" href="/guides/settling-up">
+    Understand how to view and settle outstanding balances.
+  </Card>
+  
+  <Card title="Groups Feature" icon="book" href="/features/groups">
+    Explore all group features in detail.
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Can't find the Create Group button">
+    Make sure you're signed in to your account. The Create Group button appears on your dashboard after authentication.
+  </Accordion>
+  
+  <Accordion title="Group creation fails">
+    - Ensure you've entered a group name (this field is required)
+    - Check your internet connection
+    - Try refreshing the page and attempting again
+  </Accordion>
+  
+  <Accordion title="Can't remove a person from the group">
+    People who have participated in any expense or settlement cannot be removed. This is intentional to maintain data integrity. You can create a new group if needed.
+  </Accordion>
+</AccordionGroup>

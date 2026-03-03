@@ -1,0 +1,453 @@
+---
+title: 'Invites'
+description: 'Share groups with others using secure invite links'
+icon: 'user-plus'
+---
+
+## Overview
+
+Invites allow group owners to share their expense groups with others. Instead of manually adding each person, you generate a secure invite link that others can use to join the group. This is perfect for adding authenticated users who need full access to view and manage expenses.
+
+## Who Can Create Invites
+
+Only **group owners** (the person who created the group) can generate invite links.
+
+<Info>
+  Group members cannot create invites - this ensures group owners maintain control over who joins.
+</Info>
+
+## Creating an Invite Link
+
+<Steps>
+  <Step title="Open the Invite Dialog">
+    On your group page, click the **Invite Members** button (user plus icon).
+  </Step>
+  
+  <Step title="Choose Maximum Uses">
+    Select how many people can use this link (1-10 people). Default is 10.
+  </Step>
+  
+  <Step title="Generate Link">
+    Click **Generate Invite Link** to create your shareable URL.
+  </Step>
+  
+  <Step title="Share the Link">
+    Copy the link and share it via email, messaging apps, or any communication method.
+  </Step>
+</Steps>
+
+### Invite Link Settings
+
+When creating an invite, you configure:
+
+<CardGroup cols={2}>
+  <Card title="Maximum Uses" icon="users">
+    - Choose between 1-10 people
+    - Limits how many can join with this link
+    - Link becomes invalid after max uses
+    - Prevents unlimited access
+  </Card>
+  
+  <Card title="Expiration" icon="clock">
+    - Automatically set to 7 days from creation
+    - Cannot be changed (security feature)
+    - Links expire even if unused
+    - Must generate new link after expiration
+  </Card>
+</CardGroup>
+
+## Sharing Invite Links
+
+Once generated, you can share the invite link through:
+
+- **Copy to Clipboard**: Click the clipboard icon
+- **Email**: Paste into an email message
+- **Messaging Apps**: WhatsApp, Telegram, Slack, etc.
+- **Social Media**: Direct messages (be cautious about public posting)
+
+<Warning>
+  Anyone with the invite link can join your group (until max uses is reached). Only share links with people you want to have group access.
+</Warning>
+
+## Accepting an Invite
+
+When someone receives an invite link:
+
+### For New Users
+
+<Steps>
+  <Step title="Click the Link">
+    Open the invite URL in a browser.
+  </Step>
+  
+  <Step title="See Group Preview">
+    View the group name, who invited you, and group members.
+  </Step>
+  
+  <Step title="Sign In">
+    You must sign in to EquiShare to accept invites.
+  </Step>
+  
+  <Step title="Accept Invite">
+    Click **Accept Invite** to join the group.
+  </Step>
+</Steps>
+
+### For Existing Users
+
+<Steps>
+  <Step title="Click the Link">
+    Open the invite URL while signed in.
+  </Step>
+  
+  <Step title="Review Invite">
+    See the group details and who invited you.
+  </Step>
+  
+  <Step title="Accept or Reject">
+    Click **Accept** to join or **Reject** to decline.
+  </Step>
+  
+  <Step title="Access the Group">
+    After accepting, the group appears in your group list.
+  </Step>
+</Steps>
+
+<Note>
+  You must be signed in with an EquiShare account to accept invites. Anonymous access is not supported.
+</Note>
+
+## Invite Status
+
+Invites can be in several states:
+
+<Tabs>
+  <Tab title="Pending">
+    **Active and usable invite**
+    
+    - Link is valid and can be used
+    - Has remaining uses available
+    - Hasn't expired yet
+    - Can be accepted by anyone with the link
+  </Tab>
+  
+  <Tab title="Used">
+    **Reached maximum uses**
+    
+    - All allowed people have joined
+    - Link is no longer valid
+    - Must generate a new link for more invites
+    - Shows "This invite has reached its maximum number of uses"
+  </Tab>
+  
+  <Tab title="Expired">
+    **Past expiration date**
+    
+    - 7 days have passed since creation
+    - Link no longer works
+    - Must generate a new link
+    - Shows "This invite has expired"
+  </Tab>
+  
+  <Tab title="Rejected">
+    **User declined the invite**
+    
+    - Someone clicked Reject
+    - Link marked as rejected for that user
+    - Others may still be able to use it (if uses remain)
+  </Tab>
+</Tabs>
+
+## Invite Limits and Security
+
+### Rate Limiting
+
+To prevent abuse, EquiShare limits invite creation:
+
+- **Maximum**: 10 invites per group per day
+- **Purpose**: Prevents spam and unauthorized access
+- **Reset**: Limit resets after 24 hours
+
+<Info>
+  If you hit the limit, wait 24 hours or use an existing invite link that still has remaining uses.
+</Info>
+
+### Security Features
+
+<CardGroup cols={2}>
+  <Card title="Token Hashing" icon="lock">
+    - Invite tokens are cryptographically hashed
+    - Original token never stored in database
+    - Prevents token theft from database
+    - Secure by design
+  </Card>
+  
+  <Card title="Expiration" icon="timer">
+    - All links expire after 7 days
+    - Cannot create permanent links
+    - Forces periodic renewal
+    - Limits exposure window
+  </Card>
+  
+  <Card title="Usage Limits" icon="chart-line">
+    - Maximum 10 uses per link
+    - Prevents unlimited access
+    - Tracks remaining uses
+    - Auto-invalidates when exhausted
+  </Card>
+  
+  <Card title="Authentication Required" icon="user-check">
+    - Must be signed in to accept
+    - No anonymous joins
+    - Tied to user accounts
+    - Audit trail maintained
+  </Card>
+</CardGroup>
+
+## Managing Multiple Invites
+
+You can create multiple invite links for the same group:
+
+### When to Create Multiple Links
+
+- **Different groups of people**: One link per friend group
+- **Expiration management**: Create new links as old ones expire
+- **Usage tracking**: See which link brings in members
+- **Security**: Revoke access by letting specific links expire
+
+### Generating New Links
+
+To create another invite:
+
+1. Open the Invite Dialog again
+2. Click **Generate New Link** (even if an old link exists)
+3. New link is created with fresh expiration and uses
+4. Old links remain valid until their expiration or use limit
+
+<Tip>
+  Generate a new link each time you want to invite a different group of people. This helps track who joined from which invitation.
+</Tip>
+
+## What Happens After Joining
+
+Once someone accepts an invite:
+
+### For the New Member
+
+- Group appears in their group list
+- Can view all expenses and settlements
+- Can add expenses and mark settlements as paid
+- Can export group data
+- Can leave the group at any time
+
+### For the Group Owner
+
+- New member appears in the Members section
+- Can remove the member if needed
+- Member participates in group with full access
+- All existing expenses remain unchanged
+
+<Info>
+  New members see all historical expenses in the group. If you want to hide past data, consider creating a new group instead.
+</Info>
+
+## Invite Link Format
+
+Invite links follow this format:
+
+```
+https://your-domain.com/invite/[unique-token]
+```
+
+- **Domain**: Your EquiShare instance URL
+- **Path**: Always `/invite/`
+- **Token**: Unique cryptographic token (base64url encoded)
+
+<Warning>
+  Never modify the invite URL. Changing any character will invalidate the link.
+</Warning>
+
+## Troubleshooting Invites
+
+### "Invite not found"
+
+**Possible causes**:
+- Link was copied incorrectly (missing characters)
+- Invite was deleted by the owner
+- Token is invalid or corrupted
+
+**Solution**: Ask the group owner to generate a new invite link.
+
+### "This invite has expired"
+
+**Cause**: More than 7 days have passed since creation.
+
+**Solution**: Request a new invite link from the group owner.
+
+### "This invite has reached its maximum number of uses"
+
+**Cause**: The maximum number of people have already joined.
+
+**Solution**: Ask the group owner to create a new invite link.
+
+### "You are already a member of this group"
+
+**Cause**: You've already accepted the invite or are the group owner.
+
+**Solution**: Navigate to your groups list to access the group.
+
+### "You already own this group"
+
+**Cause**: You're trying to use an invite for a group you created.
+
+**Solution**: You don't need to accept invites for your own groups - you already have access.
+
+### Can't Generate Invite
+
+**Possible causes**:
+- You're not the group owner (only owners can invite)
+- Rate limit reached (10 invites per day)
+- Network connectivity issues
+
+**Solution**: 
+- Confirm you created the group
+- Wait 24 hours if rate limited
+- Check your internet connection
+
+## Best Practices
+
+### Creating Invites
+
+<Tip>
+  Set the maximum uses to match exactly how many people you're inviting. If inviting 3 friends, set max uses to 3.
+</Tip>
+
+- Generate invite links just before sharing them
+- Don't create links weeks in advance (they expire)
+- Use the minimum necessary maximum uses
+- Create new links rather than reusing old ones
+
+### Sharing Invites
+
+- Share via private channels (DMs, email) not public posts
+- Explain what the group is for when sharing
+- Let people know they need to sign in to accept
+- Set expectations about group participation
+
+### Security
+
+- Treat invite links like passwords
+- Don't share in public forums or social media
+- Generate new links if you accidentally post publicly
+- Review group members periodically and remove unwanted users
+
+### Communication
+
+When sending invites:
+
+```
+Hey! I've created a group on EquiShare for our weekend trip.
+Click this link to join: [invite link]
+
+You'll need to sign in to accept the invite.
+Once you join, you can see all our shared expenses!
+```
+
+## Revoking Access
+
+EquiShare doesn't have a direct "revoke invite" feature, but you can:
+
+### Before Anyone Joins
+
+- Simply don't share the link
+- Wait for it to expire (7 days)
+- Create a different link to share instead
+
+### After Someone Joins
+
+If someone joined who shouldn't have:
+
+1. Navigate to the group page
+2. Find the Members section
+3. Click remove next to their name
+4. They lose access immediately
+
+See [Managing Group Members](/features/groups#managing-group-members) for details.
+
+## Common Scenarios
+
+<AccordionGroup>
+  <Accordion title="Inviting Roommates to Monthly Bills Group">
+    **Setup**:
+    - Create monthly expense group
+    - Set max uses to number of roommates
+    - Share link in house group chat
+    - Everyone joins within the week
+    
+    **Result**: All roommates have access to add bills and track settlements.
+  </Accordion>
+  
+  <Accordion title="Adding Friends to Trip Group">
+    **Setup**:
+    - Create group for upcoming vacation
+    - Generate invite with max uses = 5 (number of friends)
+    - Send individually or in group message
+    - Friends join before the trip
+    
+    **Result**: Everyone can add expenses during and after the trip.
+  </Accordion>
+  
+  <Accordion title="Inviting Colleagues to Project Expenses">
+    **Setup**:
+    - Create professional expense group
+    - Generate invite for team members
+    - Share via work communication channel
+    - Team joins to track project costs
+    
+    **Result**: Transparent expense tracking for the whole team.
+  </Accordion>
+  
+  <Accordion title="Link Expired Before Everyone Joined">
+    **Problem**: Only 3 out of 5 people joined before 7-day expiration.
+    
+    **Solution**:
+    - Generate a new invite link
+    - Share only with the 2 people who haven't joined
+    - Set max uses to 2
+    - They join using the new link
+  </Accordion>
+</AccordionGroup>
+
+## Differences from People
+
+It's important to understand the difference between inviting members and adding people:
+
+| Feature | Invite Links | Adding People |
+|---------|--------------|---------------|
+| **Purpose** | Give users full group access | Add participants to expenses |
+| **Authentication** | Requires user account | No account needed |
+| **Permissions** | Can view, add expenses, settle | Name only, for expense splitting |
+| **When to use** | Sharing with other EquiShare users | Tracking expenses for anyone |
+| **Example** | Invite roommate to manage bills together | Add "Bob" to split dinner expense |
+
+See [Managing Groups](/features/groups) for more on adding people as expense participants.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Manage Groups" icon="users" href="/features/groups">
+    Learn about group creation and member management
+  </Card>
+  
+  <Card title="Add Expenses" icon="receipt" href="/features/expenses">
+    Start tracking expenses with your new members
+  </Card>
+  
+  <Card title="API Reference" icon="code" href="/api/routers/invite">
+    Explore the Invites API for developers
+  </Card>
+  
+  <Card title="Inviting Members Guide" icon="book-open" href="/guides/inviting-members">
+    Step-by-step guide for managing group invitations
+  </Card>
+</CardGroup>

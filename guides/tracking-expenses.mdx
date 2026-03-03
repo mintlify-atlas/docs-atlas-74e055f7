@@ -1,0 +1,304 @@
+---
+title: 'Tracking Expenses'
+description: 'How to add expenses, choose split types, and manage expense history'
+icon: 'receipt'
+---
+
+## Overview
+
+Expense tracking is at the heart of EquiShare. The app provides flexible splitting methods to handle any type of shared cost, from equal splits to custom allocations.
+
+<Info>
+  All expenses are automatically included in settlement calculations. When you add or remove an expense, settlements update in real-time.
+</Info>
+
+## Adding an Expense
+
+The expense form uses a two-step process to make data entry quick and accurate.
+
+<Steps>
+  <Step title="Open the Expense Form">
+    From your group's page, click **Add Expense**. This opens a dialog with a two-step form.
+  </Step>
+
+  <Step title="Enter Expense Details (Step 1)">
+    Provide the basic information about the expense:
+    
+    **Required fields:**
+    - **Description**: What was the expense? (e.g., "Dinner at restaurant", "Grocery shopping", "Hotel booking")
+    - **Amount**: Total cost in rupees (₹)
+    - **Paid by**: Select who paid for this expense
+    - **Split between**: Select all people who should share this cost
+    
+    <Tip>
+      Write clear descriptions that you'll recognize later. Include the date or location if helpful ("Coffee on 3/15" or "Uber to airport").
+    </Tip>
+    
+    <Warning>
+      Make sure the amount is accurate before continuing. While you can delete and recreate expenses, it's easier to get it right the first time.
+    </Warning>
+  </Step>
+
+  <Step title="Configure the Split (Step 2)">
+    Choose how to divide the expense among participants. EquiShare offers three split methods:
+    
+    ### Equal Split
+    Divides the total amount equally among selected people.
+    - **Use when**: Everyone should pay the same amount
+    - **Example**: Splitting a restaurant bill among friends
+    - **Calculation**: ₹1,200 ÷ 4 people = ₹300 per person
+    
+    ### Percent Split
+    Assigns a percentage of the total to each person.
+    - **Use when**: Different people should pay different proportions
+    - **Example**: Splitting rent where one person has the larger bedroom
+    - **Percentages must total 100%**
+    - Use the sliders to adjust each person's share
+    - Click **Auto Balance** to distribute remaining percentage equally
+    
+    ### Exact Amount Split
+    Specifies an exact amount for each person.
+    - **Use when**: You know exactly what each person owes
+    - **Example**: Everyone ordered different items with different prices
+    - **Amounts must total the expense amount**
+    - Enter the specific amount for each person
+    - Click **Auto Balance** to distribute remaining amount equally
+    
+    <Info>
+      The form shows real-time totals to help ensure your split adds up correctly. Look for the green checkmark when totals match.
+    </Info>
+  </Step>
+
+  <Step title="Submit the Expense">
+    Review your entries and click **Add Expense**. The system will:
+    - Create the expense record
+    - Calculate individual shares based on your split configuration
+    - Update everyone's balances
+    - Recalculate optimal settlements for the group
+    - Notify you of success
+  </Step>
+</Steps>
+
+## Split Methods in Detail
+
+### Equal Split - The Simple Way
+
+Best for shared expenses where everyone benefits equally.
+
+**Example: Group Dinner**
+- Total bill: ₹2,400
+- People: Alex, Beth, Carlos, Diana (4 people)
+- Split: ₹2,400 ÷ 4 = ₹600 each
+
+**Pros:**
+- Fastest method
+- No calculations needed
+- Fair for truly shared expenses
+
+**Cons:**
+- Not suitable when people consume different amounts
+
+### Percent Split - Proportional Sharing
+
+Perfect for expenses where contribution varies by agreed ratios.
+
+**Example: Shared Apartment Rent**
+- Total rent: ₹30,000
+- Roommate A (master bedroom): 50%
+- Roommate B (regular room): 30%
+- Roommate C (regular room): 20%
+
+**Share calculation:**
+- Roommate A: ₹30,000 × 50% = ₹15,000
+- Roommate B: ₹30,000 × 30% = ₹9,000
+- Roommate C: ₹30,000 × 20% = ₹6,000
+
+**Pros:**
+- Handles unequal splits cleanly
+- Easy to adjust ratios with sliders
+- Percentages scale with any amount
+
+**Cons:**
+- Requires agreeing on percentage splits
+- May create decimal amounts
+
+### Exact Amount Split - Precise Control
+
+Ideal when you know exactly what each person owes.
+
+**Example: Grocery Shopping**
+- Total: ₹1,500
+- Person A bought personal items worth ₹800
+- Person B bought personal items worth ₹500
+- Shared items worth ₹200 (₹100 each)
+
+**Share calculation:**
+- Person A: ₹800 (personal) + ₹100 (shared) = ₹900
+- Person B: ₹500 (personal) + ₹100 (shared) = ₹600
+
+**Pros:**
+- Most accurate for mixed purchases
+- No ambiguity about amounts
+- Works for itemized bills
+
+**Cons:**
+- Takes longer to enter
+- Requires knowing exact amounts
+
+## Using the Split Configuration Tools
+
+### Auto Balance Button
+
+The **Auto Balance** feature helps when your split doesn't add up correctly.
+
+**For Percent Split:**
+- Distributes remaining percentage equally among all participants
+- Example: If you've assigned 80%, Auto Balance splits the remaining 20% equally
+
+**For Exact Split:**
+- Distributes remaining amount equally among all participants
+- Example: If you've assigned ₹800 of ₹1,000, Auto Balance adds ₹100 to each person
+
+### Real-Time Validation
+
+The form continuously validates your split:
+- **Green indicator**: Your split is valid and matches the total
+- **Orange/Red indicator**: Your split doesn't match - adjust or use Auto Balance
+- **Error message**: Shows exactly what needs fixing
+
+## Managing Expense History
+
+### Viewing Expenses
+
+All expenses appear in your group's expense list, showing:
+- Description and amount
+- Who paid
+- How it was split
+- Current settlement status
+
+### Deleting Expenses
+
+To remove an incorrect expense:
+1. Find the expense in the list
+2. Click the delete button
+3. Confirm deletion
+
+<Warning>
+  Deleting an expense immediately recalculates all settlements. Make sure this is intentional before confirming.
+</Warning>
+
+## Real-World Scenarios
+
+<AccordionGroup>
+  <Accordion title="Scenario: Weekend Road Trip">
+    **Day 1 - Gas**
+    - Alex pays ₹1,200 for gas
+    - Split equally among all 4 people
+    - Each person owes ₹300
+    
+    **Day 1 - Hotel**
+    - Beth pays ₹4,000 for hotel
+    - Split equally among all 4 people
+    - Each person owes ₹1,000
+    
+    **Day 2 - Breakfast**
+    - Carlos pays ₹600 for breakfast
+    - Split equally among all 4 people
+    - Each person owes ₹150
+  </Accordion>
+  
+  <Accordion title="Scenario: Shared Apartment Utilities">
+    **Electricity Bill**
+    - Total: ₹2,400
+    - 3 roommates splitting 70/20/10 based on room sizes
+    - Use percent split: 70%, 20%, 10%
+    
+    **Internet Bill**
+    - Total: ₹1,500
+    - All roommates use equally
+    - Use equal split: ₹500 each
+  </Accordion>
+  
+  <Accordion title="Scenario: Mixed Shopping Trip">
+    **Supermarket**
+    - Total bill: ₹3,500
+    - Person A: ₹1,200 of personal items
+    - Person B: ₹1,400 of personal items
+    - Shared items: ₹900 (split equally = ₹450 each)
+    - Use exact split: Person A = ₹1,650, Person B = ₹1,850
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Enter Expenses Promptly" icon="clock">
+    Add expenses as they happen or daily. This prevents forgotten expenses and keeps everyone informed.
+  </Card>
+  
+  <Card title="Be Descriptive" icon="pen">
+    Include enough detail so anyone can understand the expense later. "Dinner" is vague; "Dinner at Marina Cafe on March 3rd" is clear.
+  </Card>
+  
+  <Card title="Verify Amounts" icon="calculator">
+    Double-check amounts before submitting. Small errors accumulate and cause confusion later.
+  </Card>
+  
+  <Card title="Choose the Right Split Method" icon="chart-pie">
+    Use equal splits when fair, but don't force equal splits when exact or percent splits are more appropriate.
+  </Card>
+</CardGroup>
+
+## API Reference
+
+For developers integrating expense tracking:
+
+- `expense.create` - Create a new expense with shares
+- `expense.delete` - Remove an expense
+- `expense.getBalances` - Get current balance for all group members
+
+See the [Expense Router API](/api/routers/expense) for complete details.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Settle Up" icon="handshake" href="/guides/settling-up">
+    Learn how to view who owes whom and mark payments as settled.
+  </Card>
+  
+  <Card title="Invite Members" icon="user-plus" href="/guides/inviting-members">
+    Add registered users to your group with invite links.
+  </Card>
+  
+  <Card title="Expenses Feature" icon="book" href="/features/expenses">
+    Explore the complete expenses feature documentation.
+  </Card>
+  
+  <Card title="Create Groups" icon="users" href="/guides/creating-groups">
+    Need another group? Learn about group creation.
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Split validation error">
+    - **Percent Split**: Ensure percentages total exactly 100%
+    - **Exact Split**: Ensure amounts total the expense amount
+    - Use the **Auto Balance** button to automatically fix small discrepancies
+  </Accordion>
+  
+  <Accordion title="Can't select a person">
+    Make sure the person exists in your group. You may need to add them first in the group's people management section.
+  </Accordion>
+  
+  <Accordion title="Expense not appearing">
+    - Check that you clicked the final submit button
+    - Refresh the page to see updated data
+    - Verify you're looking at the correct group
+  </Accordion>
+  
+  <Accordion title="Need to modify an expense">
+    EquiShare doesn't support editing expenses directly. Delete the incorrect expense and create a new one with the correct information.
+  </Accordion>
+</AccordionGroup>

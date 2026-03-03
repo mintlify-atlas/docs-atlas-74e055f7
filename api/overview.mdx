@@ -1,0 +1,214 @@
+---
+title: "API Overview"
+description: "Learn how EquiShare uses tRPC for type-safe, end-to-end API calls"
+---
+
+## Introduction
+
+EquiShare uses [tRPC](https://trpc.io) to provide a fully type-safe API layer between the frontend and backend. With tRPC, you get autocompletion, type checking, and runtime validation without writing any API schemas or type definitions manually.
+
+<Info>
+  tRPC eliminates the need for REST or GraphQL endpoints by leveraging TypeScript's type system to provide end-to-end type safety.
+</Info>
+
+## API Architecture
+
+The EquiShare API is organized into four main routers, each handling a specific domain:
+
+```typescript
+// src/server/api/root.ts
+export const appRouter = createTRPCRouter({
+  group: groupRouter,
+  expense: expenseRouter,
+  invite: inviteRouter,
+  settlement: settlementRouter,
+});
+```
+
+<CardGroup cols={2}>
+  <Card title="Group Router" icon="users" href="/api/routers/group">
+    Manage groups, members, and people in expense groups
+  </Card>
+  <Card title="Expense Router" icon="receipt" href="/api/routers/expense">
+    Create, delete, and calculate balances for expenses
+  </Card>
+  <Card title="Settlement Router" icon="money-bill-transfer" href="/api/routers/settlement">
+    Handle payment settlements between group members
+  </Card>
+  <Card title="Invite Router" icon="envelope" href="/api/routers/invite">
+    Manage group invitations for new members
+  </Card>
+</CardGroup>
+
+## Making API Calls
+
+EquiShare uses the `api` client exported from `~/trpc/react` to make type-safe API calls in React components.
+
+### Using Queries
+
+Queries fetch data and automatically manage caching, loading states, and refetching:
+
+```tsx
+import { api } from "~/trpc/react";
+
+function GroupList() {
+  const { data: groups, isLoading } = api.group.getAll.useQuery();
+
+  if (isLoading) return <div>Loading...</div>;
+
+  return (
+    <div>
+      {groups?.map((group) => (
+        <div key={group.id}>{group.name}</div>
+      ))}
+    </div>
+  );
+}
+```
+
+### Using Mutations
+
+Mutations modify data on the server and return the result:
+
+```tsx
+import { api } from "~/trpc/react";
+
+function CreateGroupForm() {
+  const createGroup = api.group.create.useMutation({
+    onSuccess: (data) => {
+      console.log("Group created:", data);
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    
+    createGroup.mutate({
+      name: formData.get("name") as string,
+      people: ["Alice", "Bob", "Charlie"],
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input name="name" placeholder="Group name" required />
+      <button type="submit" disabled={createGroup.isPending}>
+        {createGroup.isPending ? "Creating..." : "Create Group"}
+      </button>
+    </form>
+  );
+}
+```
+
+## Type Inference
+
+EquiShare provides type inference helpers for inputs and outputs:
+
+```typescript
+import { type RouterInputs, type RouterOutputs } from "~/trpc/react";
+
+// Get the input type for group.create
+type CreateGroupInput = RouterInputs["group"]["create"];
+// { name: string; people: string[] }
+
+// Get the output type for group.getAll
+type Groups = RouterOutputs["group"]["getAll"];
+```
+
+## Request Context
+
+Every tRPC procedure has access to a context object that includes:
+
+- `ctx.db` - Prisma database client
+- `ctx.session` - NextAuth session (with user info if authenticated)
+- `ctx.headers` - Request headers
+
+```typescript
+// Available in all procedures
+export const createTRPCContext = async (opts: { headers: Headers }) => {
+  const session = await auth();
+
+  return {
+    db,
+    session,
+    ...opts,
+  };
+};
+```
+
+## Error Handling
+
+The API uses `TRPCError` for consistent error handling across all procedures:
+
+<CodeGroup>
+```typescript Server-side
+import { TRPCError } from "@trpc/server";
+
+if (!group) {
+  throw new TRPCError({
+    code: "NOT_FOUND",
+    message: "Group not found",
+  });
+}
+```
+
+```tsx Client-side
+const { data, error } = api.group.getById.useQuery(groupId);
+
+if (error) {
+  // Error is fully typed
+  console.error(error.message);
+  // Handle specific error codes
+  if (error.data?.code === "NOT_FOUND") {
+    // Show not found UI
+  }
+}
+```
+</CodeGroup>
+
+## Common Error Codes
+
+| Code | Description |
+|------|-------------|
+| `UNAUTHORIZED` | User is not authenticated |
+| `FORBIDDEN` | User lacks permission for this action |
+| `NOT_FOUND` | Requested resource doesn't exist |
+| `BAD_REQUEST` | Invalid input or business logic error |
+
+## Data Transformation
+
+EquiShare uses [SuperJSON](https://github.com/blitz-js/superjson) to handle complex data types like `Date`, `Map`, `Set`, and `BigInt` seamlessly:
+
+```typescript
+// Dates are automatically serialized and deserialized
+const expense = {
+  createdAt: new Date(),
+  amount: 50.00
+};
+
+// Client receives a proper Date object, not a string
+const { data } = api.expense.getById.useQuery("123");
+const date = data.createdAt; // Date object, not string!
+```
+
+<Note>
+  SuperJSON is configured automatically in both the tRPC server and client, so you don't need to handle serialization manually.
+</Note>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="lock" href="/api/authentication">
+    Learn how to protect routes and procedures
+  </Card>
+  <Card title="Group Router" icon="users" href="/api/routers/group">
+    Explore the Group API endpoints
+  </Card>
+  <Card title="Expense Router" icon="receipt" href="/api/routers/expense">
+    Explore the Expense API endpoints
+  </Card>
+  <Card title="Database Schema" icon="database" href="/api/database/schema">
+    Understand the data models
+  </Card>
+</CardGroup>

@@ -1,0 +1,258 @@
+---
+title: 'Groups'
+description: 'Create and manage expense groups to track shared costs with friends, family, or colleagues'
+icon: 'users'
+---
+
+## Overview
+
+Groups are the foundation of EquiShare. Each group represents a shared expense context - whether it's a vacation with friends, household expenses with roommates, or a project with colleagues. Groups help you organize who participated in expenses and how costs should be split.
+
+## Creating a Group
+
+To create a new group:
+
+1. Click the **Create New Group** button on your dashboard
+2. Enter a descriptive group name (e.g., "Weekend Trip", "House Expenses")
+3. Optionally add people to the group during creation
+4. Click **Create Group**
+
+<Note>
+  You can add people later, so don't worry if you don't know everyone who'll participate yet.
+</Note>
+
+### Adding People
+
+When creating a group, you can add people by:
+
+- Typing each person's name
+- Pressing Enter or clicking the plus icon to add them
+- Removing people by clicking the X on their badge
+
+## Managing Group Members
+
+### Adding People to an Existing Group
+
+Once your group is created, you can add more people:
+
+1. Navigate to your group page
+2. Find the **People** section
+3. Enter the person's name in the "Add New Person" field
+4. Click the user plus icon to add them
+
+### Removing People
+
+To remove someone from a group:
+
+1. Hover over the person's name in the People section
+2. Click the minus icon that appears
+3. Confirm the deletion
+
+<Warning>
+  You can only remove people who haven't participated in any expenses or settlements. If someone has expense history, you'll need to settle or delete those expenses first.
+</Warning>
+
+## Group Access Control
+
+EquiShare has two types of group access:
+
+<CardGroup cols={2}>
+  <Card title="Group Owner" icon="crown">
+    The user who created the group. Owners can:
+    - Delete the entire group
+    - Remove members
+    - Generate invite links
+    - Manage all expenses and settlements
+  </Card>
+  
+  <Card title="Group Members" icon="user">
+    Users invited to join the group. Members can:
+    - View all expenses and settlements
+    - Add and delete expenses
+    - Mark settlements as paid
+    - Leave the group at any time
+  </Card>
+</CardGroup>
+
+### Inviting Members
+
+Group owners can invite others by generating invite links. See the [Invites](/features/invites) page for details.
+
+### Leaving a Group
+
+Members (but not owners) can leave a group at any time:
+
+1. Navigate to the group page
+2. Click the **Leave Group** option
+3. Confirm your departure
+
+<Info>
+  As the group owner, you cannot leave your own group - you can only delete it. This ensures groups always have an owner who can manage them.
+</Info>
+
+## Viewing Group Data
+
+### Group Dashboard
+
+Each group has a comprehensive dashboard showing:
+
+- **People**: All participants in the group
+- **Expenses**: Complete list of shared expenses
+- **Settlements**: Current balances and who owes whom
+
+The dashboard provides a real-time overview of the group's financial status.
+
+### Understanding Group Balances
+
+Group balances are automatically calculated based on:
+
+- Who paid for each expense
+- How expenses were split among participants
+- Which settlements have been marked as paid
+
+The system uses a minimal transaction algorithm to reduce the number of payments needed to settle all debts.
+
+## Exporting Group Data
+
+You can export complete group data for your records or external use.
+
+### Export Formats
+
+EquiShare supports two export formats:
+
+<Tabs>
+  <Tab title="CSV Export">
+    Download a spreadsheet-compatible CSV file containing:
+    - All group expenses with dates and amounts
+    - Split details showing who owes what
+    - Settlement history
+    - Current outstanding balances
+    
+    Perfect for importing into Excel, Google Sheets, or other financial tools.
+  </Tab>
+  
+  <Tab title="PDF Export">
+    Generate a formatted PDF document with:
+    - Group summary information
+    - Complete expense listing
+    - Settlement breakdown
+    - Visual formatting for easy printing
+    
+    Ideal for record-keeping or sharing with accountants.
+  </Tab>
+</Tabs>
+
+### How to Export
+
+1. Navigate to your group page
+2. Click the **download icon** in the top section
+3. Choose your preferred format (CSV or PDF)
+4. The file downloads automatically
+
+<Tip>
+  Export your group data before settling all expenses to maintain a complete financial record.
+</Tip>
+
+## Deleting a Group
+
+Only group owners can delete a group:
+
+1. Navigate to the group page
+2. Find the delete option (usually in group settings)
+3. Confirm the deletion
+
+<Warning>
+  Deleting a group permanently removes all expenses, settlements, and people associated with it. This action cannot be undone. Consider exporting your data first.
+</Warning>
+
+## Best Practices
+
+### Naming Groups
+
+- Use descriptive names that indicate the purpose: "Bali Vacation 2024" instead of just "Trip"
+- Include timeframes for temporary groups: "March House Bills"
+- Keep names concise but meaningful
+
+### Managing People
+
+- Add people before creating expenses to ensure everyone is available when splitting costs
+- Use consistent names for the same person across different groups
+- Remove people who won't participate before they're included in expenses
+
+### Organization
+
+- Create separate groups for different contexts (don't mix vacation and household expenses)
+- Archive or delete groups once all expenses are settled
+- Regularly export data for groups with many transactions
+
+## Common Scenarios
+
+<AccordionGroup>
+  <Accordion title="Managing a Roommate Group">
+    Create a group for your household and add all roommates. This group might be long-lived, so:
+    - Keep the People list up to date as roommates move in/out
+    - Regularly settle up (monthly or quarterly)
+    - Export data for year-end summaries
+  </Accordion>
+  
+  <Accordion title="Planning a Group Trip">
+    Create a temporary group for the vacation:
+    - Add all travelers before the trip
+    - Track all shared expenses during the trip
+    - Settle up at the end and export for records
+    - Delete the group after final settlement
+  </Accordion>
+  
+  <Accordion title="Project Expenses">
+    For work or business groups:
+    - Use formal names that match official records
+    - Export regularly for accounting purposes
+    - Keep detailed expense descriptions
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+### Can't Remove a Person
+
+If you can't remove someone, they're likely referenced in expenses or settlements. You'll need to:
+
+1. Check the Expenses section for their involvement
+2. Either delete those expenses or settle them
+3. Try removing the person again
+
+### Can't Find My Group
+
+Make sure you're looking at groups where you're either:
+- The owner (you created it)
+- A member (someone invited you)
+
+Groups you've left or were removed from won't appear in your list.
+
+### Export Not Working
+
+If exports fail:
+- Check your browser's download settings
+- Ensure popup blockers aren't interfering
+- Try a different export format
+- Check that the group has data to export
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Add Expenses" icon="receipt" href="/features/expenses">
+    Learn how to add and split expenses within your group
+  </Card>
+  
+  <Card title="View Settlements" icon="arrow-right-arrow-left" href="/features/settlements">
+    Understand how to settle debts and view balances
+  </Card>
+  
+  <Card title="Invite Members" icon="user-plus" href="/features/invites">
+    Generate invite links to add members to your group
+  </Card>
+  
+  <Card title="API Reference" icon="code" href="/api/routers/group">
+    Explore the Groups API for developers
+  </Card>
+</CardGroup>

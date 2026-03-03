@@ -1,0 +1,381 @@
+---
+title: 'Expenses'
+description: 'Add, split, and manage shared expenses with flexible splitting methods'
+icon: 'receipt'
+---
+
+## Overview
+
+Expenses are the core transactions in EquiShare. Each expense represents a cost that was paid by one person but should be shared among multiple people. EquiShare offers flexible splitting options to handle any real-world scenario.
+
+## Adding an Expense
+
+To add a new expense to a group:
+
+1. Navigate to your group page
+2. Click the **Add Expense** button
+3. Complete the expense details (Step 1)
+4. Configure how to split the cost (Step 2)
+5. Submit the expense
+
+### Step 1: Expense Details
+
+Provide the basic information about the expense:
+
+<Steps>
+  <Step title="Description">
+    Enter what the expense was for (e.g., "Dinner at Restaurant", "Hotel Booking", "Groceries")
+  </Step>
+  
+  <Step title="Amount">
+    Enter the total amount in rupees (₹). Include decimals for precise amounts.
+  </Step>
+  
+  <Step title="Paid By">
+    Select who paid for this expense from the group members.
+  </Step>
+  
+  <Step title="Split Among">
+    Select all people who should share this cost. You can select multiple people.
+  </Step>
+</Steps>
+
+<Note>
+  All fields in Step 1 are required before you can proceed to configure the split.
+</Note>
+
+### Step 2: Split Configuration
+
+Choose how to divide the expense among the selected people:
+
+<Tabs>
+  <Tab title="Equal Split">
+    ## Equal Split
+    
+    The expense is divided equally among all selected people.
+    
+    **Example**: A ₹900 dinner split equally among 3 people = ₹300 per person
+    
+    **When to use**:
+    - Restaurant bills where everyone ordered similarly
+    - Shared accommodations
+    - Group activities with equal participation
+    
+    **How it works**:
+    - The total amount is divided by the number of people
+    - Each person owes exactly the same amount
+    - No additional configuration needed
+  </Tab>
+  
+  <Tab title="Percentage Split">
+    ## Percentage Split
+    
+    Each person pays a specific percentage of the total.
+    
+    **Example**: A ₹1000 expense split 50% / 30% / 20% among three people
+    
+    **When to use**:
+    - Unequal participation in the expense
+    - Based on agreed-upon ratios (e.g., 70/30 split)
+    - When you know the proportions but not exact amounts
+    
+    **How it works**:
+    - Use the slider to adjust each person's percentage
+    - The system shows the current total percentage
+    - Click **Auto Balance** to redistribute to 100%
+    - Total must equal 100% to save the expense
+  </Tab>
+  
+  <Tab title="Exact Amount">
+    ## Exact Amount Split
+    
+    Each person pays a specific fixed amount.
+    
+    **Example**: A ₹1000 expense where Person A pays ₹400, Person B pays ₹350, Person C pays ₹250
+    
+    **When to use**:
+    - People ordered different amounts at a restaurant
+    - Some items were for specific individuals
+    - You have exact amounts from an itemized bill
+    
+    **How it works**:
+    - Enter the exact amount for each person
+    - The system shows the current total
+    - Click **Auto Balance** to distribute any remainder
+    - Total must equal the expense amount to save
+  </Tab>
+</Tabs>
+
+## Split Configuration Tools
+
+### Auto Balance
+
+The Auto Balance feature helps when your splits don't add up correctly:
+
+- **For Percentage**: Redistributes percentages equally to reach 100%
+- **For Exact Amount**: Adjusts amounts proportionally to match the total
+
+### Visual Feedback
+
+The interface provides real-time feedback:
+
+- **Green indicators**: Splits are correctly balanced
+- **Orange indicators**: Splits don't add up correctly
+- **Current totals**: Always visible at the top
+
+### Adjusting Splits
+
+<Tabs>
+  <Tab title="Percentage">
+    - Use the slider for quick adjustments
+    - Slider ranges from 0% to 100%
+    - Adjust in 0.5% increments for precision
+  </Tab>
+  
+  <Tab title="Exact Amount">
+    - Type the exact amount in the input field
+    - Use decimal points for precise amounts
+    - Maximum is the total expense amount
+  </Tab>
+</Tabs>
+
+## Viewing Expenses
+
+All expenses appear in the group's expense list, showing:
+
+- **Description**: What the expense was for
+- **Amount**: Total cost in rupees
+- **Paid By**: Who paid initially
+- **Split Details**: How it was divided
+- **Date**: When the expense was added
+
+### Expense List Features
+
+- Expenses are sorted by date (newest first)
+- Each expense shows who participated
+- Visual indicators show the payer
+- Click an expense to view full split details
+
+## Deleting Expenses
+
+You can delete an expense if:
+
+- You're the group owner or a member with access
+- The expense hasn't been settled yet
+
+<Warning>
+  Deleting an expense permanently removes it and recalculates all settlements. This action cannot be undone.
+</Warning>
+
+### How to Delete
+
+1. Navigate to the expense in the list
+2. Click the delete icon or option
+3. Confirm the deletion
+4. Settlements are automatically recalculated
+
+<Info>
+  When you delete an expense, EquiShare automatically recomputes who owes whom based on the remaining expenses.
+</Info>
+
+## How Expenses Affect Settlements
+
+Every expense impacts the group's balances:
+
+### Balance Calculation
+
+For each expense:
+- The **payer** receives credit for the full amount
+- Each **participant** gets debited for their share
+
+**Example**:
+```
+Expense: ₹900 dinner
+Paid by: Alice
+Split: Equally among Alice, Bob, Carol (₹300 each)
+
+Balance changes:
+- Alice: +₹900 (paid) -₹300 (her share) = +₹600
+- Bob: -₹300 (his share)
+- Carol: -₹300 (her share)
+
+Result: Bob and Carol each owe Alice ₹300
+```
+
+### Automated Settlement Updates
+
+Whenever you add or delete an expense:
+
+1. All balances are recalculated
+2. Settlements are recomputed using the minimal transaction algorithm
+3. The optimal payment plan is generated
+4. Previous settlements remain marked as paid in history
+
+Learn more about this on the [Settlements](/features/settlements) page.
+
+## Best Practices
+
+### Descriptive Names
+
+<Tip>
+  Use clear, specific descriptions that will make sense weeks later: "Pizza Hut dinner on Friday" instead of just "Food".
+</Tip>
+
+### Timely Entry
+
+Add expenses as they happen:
+- Details are fresh in everyone's mind
+- Receipts are still available
+- Less chance of forgetting expenses
+
+### Choosing Split Methods
+
+**Use Equal Split when**:
+- Everyone benefited equally
+- Simplicity is more important than precision
+- The amounts are roughly similar
+
+**Use Percentage Split when**:
+- You have agreed-upon ratios (e.g., roommates by room size)
+- You know proportions but not exact amounts
+- The split isn't equal but you don't need precision
+
+**Use Exact Amount when**:
+- You have an itemized bill
+- Different people consumed different amounts
+- Precision matters (business expenses)
+
+### Accuracy
+
+- Double-check amounts before submitting
+- Include all participants who should share the cost
+- Round to 2 decimal places for currency accuracy
+- Use Auto Balance to handle rounding differences
+
+## Common Scenarios
+
+<AccordionGroup>
+  <Accordion title="Restaurant Bill with Different Orders">
+    **Scenario**: Group dinner where people ordered different amounts
+    
+    **Solution**: Use Exact Amount split
+    - Add the expense with the total bill amount
+    - Enter each person's exact cost from the itemized bill
+    - Let them add up to the total (including tip and tax)
+  </Accordion>
+  
+  <Accordion title="Shared Rent by Room Size">
+    **Scenario**: 3 roommates with different room sizes
+    
+    **Solution**: Use Percentage split
+    - Calculate percentages based on square footage
+    - Example: 40% / 35% / 25% split
+    - Use the same percentages each month
+  </Accordion>
+  
+  <Accordion title="Group Grocery Shopping">
+    **Scenario**: Buying shared household items
+    
+    **Solution**: Use Equal split
+    - Add the total grocery amount
+    - Split equally among household members
+    - Simple and fair for common items
+  </Accordion>
+  
+  <Accordion title="Partial Participation">
+    **Scenario**: Not everyone participated in this expense
+    
+    **Solution**: Select only participants
+    - In "Split Among", choose only people who should pay
+    - Don't include people who weren't there
+    - Use any split method appropriate for the group
+  </Accordion>
+</AccordionGroup>
+
+## Validation and Error Handling
+
+### Required Fields
+
+You must provide:
+- Description (cannot be empty)
+- Amount (must be positive)
+- Payer (must be from the group)
+- Participants (at least one person)
+
+### Split Validation
+
+Before saving, the system validates:
+
+<Tabs>
+  <Tab title="Equal Split">
+    - Automatic validation (always valid)
+    - No manual adjustment needed
+  </Tab>
+  
+  <Tab title="Percentage Split">
+    - Total must equal 100%
+    - Tolerance: ±0.01% for rounding
+    - Error shown if total is off
+  </Tab>
+  
+  <Tab title="Exact Amount">
+    - Total must equal expense amount
+    - Tolerance: ±0.01 rupees for rounding
+    - Error shown if totals don't match
+  </Tab>
+</Tabs>
+
+### Common Validation Errors
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| "Total shares must equal 100%" | Percentages don't add up | Use Auto Balance or adjust manually |
+| "Total shares must equal expense amount" | Exact amounts don't match total | Check your math or use Auto Balance |
+| "All share participants must belong to the group" | Selected invalid person | Choose only from group members |
+| "Payer must be a person in this group" | Invalid payer selected | Select someone from the group |
+
+## Advanced Tips
+
+### Handling Tips and Taxes
+
+Include tips and taxes in the total amount:
+
+1. Calculate the final total (bill + tip + tax)
+2. Enter this as the expense amount
+3. Split as appropriate
+
+### Splitting with Non-Payers
+
+If someone should pay but didn't:
+
+1. Choose the actual payer in "Paid By"
+2. Include all people who should share the cost in "Split Among"
+3. The system tracks who owes the payer
+
+### Multiple Currencies
+
+While EquiShare displays in rupees (₹):
+
+1. Convert foreign amounts to rupees before entering
+2. Use the exchange rate at the time of expense
+3. Note the original currency in the description if needed
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="View Settlements" icon="arrow-right-arrow-left" href="/features/settlements">
+    See how expenses translate to settlements and payments
+  </Card>
+  
+  <Card title="Manage Groups" icon="users" href="/features/groups">
+    Learn about organizing people and groups
+  </Card>
+  
+  <Card title="API Reference" icon="code" href="/api/routers/expense">
+    Explore the Expenses API for developers
+  </Card>
+  
+  <Card title="Tracking Expenses Guide" icon="book-open" href="/guides/tracking-expenses">
+    Step-by-step guide for managing expenses
+  </Card>
+</CardGroup>

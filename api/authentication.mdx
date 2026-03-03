@@ -1,0 +1,410 @@
+---
+title: "Authentication"
+description: "Learn how EquiShare handles authentication with NextAuth and Google OAuth"
+---
+
+## Overview
+
+EquiShare uses [NextAuth.js](https://next-auth.js.org/) (Auth.js v5) to handle user authentication. The app currently supports Google OAuth for sign-in and uses Prisma as the database adapter to store user sessions.
+
+<Info>
+  NextAuth automatically handles session management, CSRF protection, and secure cookie handling.
+</Info>
+
+## Authentication Setup
+
+### Provider Configuration
+
+EquiShare is configured to use Google as the authentication provider:
+
+```typescript
+// src/server/auth/config.ts
+import GoogleProvider from "next-auth/providers/google";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+
+export const authConfig = {
+  providers: [
+    GoogleProvider({
+      clientId: process.env.AUTH_GOOGLE_ID,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET,
+    }),
+  ],
+  adapter: PrismaAdapter(db),
+  pages: {
+    signIn: "/signin",
+  },
+  callbacks: {
+    session: ({ session, user }) => ({
+      ...session,
+      user: {
+        ...session.user,
+        id: user.id,
+      },
+    }),
+  },
+} satisfies NextAuthConfig;
+```
+
+### Environment Variables
+
+To enable Google OAuth, you need to set these environment variables:
+
+```bash
+AUTH_GOOGLE_ID="your-google-client-id"
+AUTH_GOOGLE_SECRET="your-google-client-secret"
+AUTH_SECRET="your-secret-key-for-signing-tokens"
+```
+
+<Note>
+  You can get Google OAuth credentials from the [Google Cloud Console](https://console.cloud.google.com/) by creating an OAuth 2.0 Client ID.
+</Note>
+
+## Session Structure
+
+The session object contains information about the authenticated user:
+
+```typescript
+interface Session {
+  user: {
+    id: string;        // User ID from database
+    name: string;      // User's display name
+    email: string;     // User's email address
+    image: string;     // User's profile picture URL
+  };
+  expires: string;     // Session expiration date
+}
+```
+
+### TypeScript Module Augmentation
+
+EquiShare extends the default NextAuth types to include the user ID:
+
+```typescript
+// src/server/auth/config.ts
+declare module "next-auth" {
+  interface Session extends DefaultSession {
+    user: {
+      id: string;
+      // ...other properties
+    } & DefaultSession["user"];
+  }
+}
+```
+
+## Using Authentication in Components
+
+### Client Components
+
+Use the `useSession` hook from `next-auth/react` to access session data:
+
+```tsx
+"use client";
+
+import { useSession } from "next-auth/react";
+
+function UserProfile() {
+  const { data: session, status } = useSession();
+
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
+  if (status === "unauthenticated") {
+    return <div>Please sign in</div>;
+  }
+
+  return (
+    <div>
+      <p>Welcome, {session.user.name}!</p>
+      <img src={session.user.image} alt="Profile" />
+    </div>
+  );
+}
+```
+
+### Server Components
+
+Use the `auth()` function to get the session on the server:
+
+```tsx
+import { auth } from "~/server/auth";
+
+async function ServerComponent() {
+  const session = await auth();
+
+  if (!session) {
+    return <div>Not authenticated</div>;
+  }
+
+  return (
+    <div>
+      <h1>Hello, {session.user.name}</h1>
+      <p>Your ID: {session.user.id}</p>
+    </div>
+  );
+}
+```
+
+## Sign In and Sign Out
+
+### Sign In
+
+EquiShare has a custom sign-in page at `/signin`. To trigger sign-in programmatically:
+
+```tsx
+import { signIn } from "next-auth/react";
+
+function SignInButton() {
+  return (
+    <button onClick={() => signIn("google")}>
+      Sign in with Google
+    </button>
+  );
+}
+```
+
+### Sign Out
+
+To sign out a user:
+
+```tsx
+import { signOut } from "next-auth/react";
+
+function SignOutButton() {
+  return (
+    <button onClick={() => signOut()}>
+      Sign out
+    </button>
+  );
+}
+```
+
+## Protected API Procedures
+
+### Public vs Protected Procedures
+
+tRPC provides two types of procedures in EquiShare:
+
+<CodeGroup>
+```typescript Public Procedure
+// Available to all users (authenticated or not)
+export const publicProcedure = t.procedure.use(timingMiddleware);
+```
+
+```typescript Protected Procedure
+// Only accessible to authenticated users
+export const protectedProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(({ ctx, next }) => {
+    if (!ctx.session?.user) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+    return next({
+      ctx: {
+        // infers the `session` as non-nullable
+        session: { ...ctx.session, user: ctx.session.user },
+      },
+    });
+  });
+```
+</CodeGroup>
+
+### Using Protected Procedures
+
+All EquiShare API routers use `protectedProcedure` to ensure only authenticated users can access them:
+
+```typescript
+// src/server/api/routers/group.ts
+import { protectedProcedure } from "~/server/api/trpc";
+
+export const groupRouter = createTRPCRouter({
+  getAll: protectedProcedure.query(async ({ ctx }) => {
+    // ctx.session.user is guaranteed to exist here
+    const userId = ctx.session.user.id;
+    
+    const groups = await ctx.db.group.findMany({
+      where: {
+        OR: [
+          { createdById: userId },
+          { members: { some: { id: userId } } },
+        ],
+      },
+    });
+    
+    return groups;
+  }),
+});
+```
+
+<Note>
+  When using `protectedProcedure`, TypeScript automatically knows that `ctx.session.user` is not null, giving you type safety.
+</Note>
+
+## Authorization Patterns
+
+EquiShare implements several authorization patterns to ensure users can only access their own data:
+
+### Owner-Only Access
+
+Only the creator of a resource can perform certain actions:
+
+```typescript
+// Check if user is the group owner
+const group = await ctx.db.group.findFirst({
+  where: { 
+    id: groupId, 
+    createdById: ctx.session.user.id // Must be owner
+  },
+});
+
+if (!group) {
+  throw new TRPCError({
+    code: "FORBIDDEN",
+    message: "Only the group owner can perform this action",
+  });
+}
+```
+
+### Owner or Member Access
+
+Allow access to group owners and members:
+
+```typescript
+// Check if user is owner OR member
+const group = await ctx.db.group.findFirst({
+  where: {
+    id: groupId,
+    OR: [
+      { createdById: ctx.session.user.id },
+      { members: { some: { id: ctx.session.user.id } } },
+    ],
+  },
+});
+
+if (!group) {
+  throw new TRPCError({
+    code: "FORBIDDEN",
+    message: "You do not have access to this group",
+  });
+}
+```
+
+### Returning Access Level
+
+Provide information about the user's access level:
+
+```typescript
+const group = await ctx.db.group.findUnique({
+  where: { id: groupId },
+});
+
+const isOwner = group.createdById === ctx.session.user.id;
+const isMember = group.members.some(
+  (member) => member.id === ctx.session.user.id
+);
+
+return {
+  ...group,
+  isOwner,
+  isMember,
+};
+```
+
+## Protecting Routes
+
+### Redirect Unauthenticated Users
+
+For pages that require authentication, redirect to the sign-in page:
+
+```tsx
+import { redirect } from "next/navigation";
+import { auth } from "~/server/auth";
+
+export default async function ProtectedPage() {
+  const session = await auth();
+
+  if (!session) {
+    redirect("/signin");
+  }
+
+  return <div>Protected content</div>;
+}
+```
+
+### Middleware Protection
+
+You can also use Next.js middleware to protect routes (if implemented):
+
+```typescript
+// middleware.ts (if exists)
+import { auth } from "~/server/auth";
+
+export default auth((req) => {
+  if (!req.auth && req.nextUrl.pathname !== "/signin") {
+    const newUrl = new URL("/signin", req.nextUrl.origin);
+    return Response.redirect(newUrl);
+  }
+});
+
+export const config = {
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+};
+```
+
+## Session Management
+
+### Session Duration
+
+By default, NextAuth sessions last 30 days. Users remain signed in unless they explicitly sign out or the session expires.
+
+### Refreshing Session
+
+To manually refresh the session in a client component:
+
+```tsx
+import { useSession } from "next-auth/react";
+
+function Component() {
+  const { data: session, update } = useSession();
+
+  const refreshSession = async () => {
+    await update();
+  };
+
+  return <button onClick={refreshSession}>Refresh Session</button>;
+}
+```
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Always Use Protected Procedures" icon="shield-check">
+    Use `protectedProcedure` for any API endpoints that access user data
+  </Card>
+  <Card title="Check Authorization" icon="user-lock">
+    Always verify the user has permission to access or modify resources
+  </Card>
+  <Card title="Validate Resource Ownership" icon="id-badge">
+    Check if resources belong to the user or their groups before operations
+  </Card>
+  <Card title="Return Meaningful Errors" icon="triangle-exclamation">
+    Use specific error codes (UNAUTHORIZED, FORBIDDEN, NOT_FOUND) for better UX
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="API Overview" icon="code" href="/api/overview">
+    Learn about the tRPC API structure
+  </Card>
+  <Card title="Group Router" icon="users" href="/api/routers/group">
+    Explore group management endpoints
+  </Card>
+  <Card title="Database Schema" icon="database" href="/api/database/schema">
+    Understand user and session models
+  </Card>
+  <Card title="Expense Router" icon="receipt" href="/api/routers/expense">
+    Explore expense tracking endpoints
+  </Card>
+</CardGroup>

@@ -1,0 +1,363 @@
+---
+title: 'Inviting Members'
+description: 'Creating invite links, sharing them, and managing who has access to your group'
+icon: 'user-plus'
+---
+
+## Overview
+
+Invite links allow you to add registered EquiShare users as members of your group. Unlike "people" (who are tracked by name only), members are authenticated users who can access the group through their own account.
+
+<Info>
+  Only group owners can generate invite links. Group members cannot invite additional members.
+</Info>
+
+## Understanding Members vs. People
+
+EquiShare distinguishes between two types of participants:
+
+### People
+- Added by name only
+- No account required
+- Can be included in expense splits
+- Cannot log in or view the group independently
+- Perfect for tracking expenses with non-registered users
+
+### Members
+- Registered EquiShare users
+- Join via invite links
+- Have their own login access
+- Can view all expenses and settlements
+- Can add expenses themselves
+- Can mark settlements as paid
+
+<Tip>
+  Use "people" for quick expense tracking. Use "members" when you want others to have full access to the group through their own accounts.
+</Tip>
+
+## Creating Invite Links
+
+<Steps>
+  <Step title="Open the Invite Dialog">
+    From your group page, click **Invite Members** or the invite button. This opens the invite generation dialog.
+    
+    <Note>
+      You must be the group owner to generate invites. Group members will not see this option.
+    </Note>
+  </Step>
+
+  <Step title="Configure Invite Settings">
+    Set the maximum number of people who can use this invite link:
+    
+    - Select from 1 to 10 people
+    - Default is 10 people
+    - Each person who accepts the invite consumes one use
+    
+    **When to limit uses:**
+    - **Set to 1**: Inviting a specific person
+    - **Set to 5-10**: Inviting a known group (roommates, friends)
+    - **Set to 10**: General invite for larger groups
+    
+    <Warning>
+      Once an invite link runs out of uses, it becomes invalid. You'll need to generate a new link to invite more people.
+    </Warning>
+  </Step>
+
+  <Step title="Generate the Link">
+    Click **Generate Invite Link**. The system creates:
+    
+    - A unique, secure invite token
+    - An expiration date (7 days from creation)
+    - A full invite URL you can share
+    
+    The invite link will look like:
+    ```
+    https://equishare.app/invite/AbCdEf123GhIjK456LmNoPq789
+    ```
+  </Step>
+
+  <Step title="Copy and Share">
+    Click the copy button to copy the invite link to your clipboard, then share it with the people you want to invite.
+    
+    **Secure sharing methods:**
+    - Direct message
+    - Email
+    - Group chat (if appropriate)
+    - Encrypted messaging apps
+    
+    <Warning>
+      Anyone with the link can join your group (up to the max uses limit). Only share invite links with people you trust.
+    </Warning>
+  </Step>
+</Steps>
+
+## Invite Link Properties
+
+### Expiration
+
+All invite links expire after **7 days**. After expiration:
+- The link becomes invalid
+- Cannot be used to join the group
+- You must generate a new link to invite more members
+
+<Info>
+  The 7-day expiration helps maintain security by ensuring old links don't remain active indefinitely.
+</Info>
+
+### Maximum Uses
+
+Each invite has a use limit (1-10 people):
+- Each successful join consumes one use
+- When remaining uses reach zero, the link becomes invalid
+- The same person cannot join multiple times
+
+### Rate Limiting
+
+To prevent abuse, EquiShare limits invite creation:
+- **Maximum 10 invites per group per day**
+- This limit resets every 24 hours
+- Helps prevent spam and unauthorized sharing
+
+<Warning>
+  If you hit the rate limit, wait 24 hours before creating more invites.
+</Warning>
+
+## Accepting Invite Links (For Recipients)
+
+When someone shares an invite link with you:
+
+<Steps>
+  <Step title="Click the Invite Link">
+    Open the link in your browser. You'll see the invite page showing:
+    - Group name
+    - Who invited you
+    - How many people are in the group
+    - Link expiration date
+  </Step>
+
+  <Step title="Sign In or Sign Up">
+    If you're not logged in:
+    - **Existing user**: Sign in to your account
+    - **New user**: Create a free EquiShare account
+    
+    <Tip>
+      The invite will remain available after you sign in, so you can complete the registration process.
+    </Tip>
+  </Step>
+
+  <Step title="Accept the Invite">
+    Click **Accept Invite** to join the group. The system will:
+    - Add you as a member of the group
+    - Grant you access to all group expenses and settlements
+    - Redirect you to the group page
+    - Decrement the invite's remaining uses
+  </Step>
+
+  <Step title="Access the Group">
+    The group now appears in your dashboard. You have full access to:
+    - View all expenses
+    - Add new expenses
+    - See settlement information
+    - Mark settlements as paid
+    - Export group data
+  </Step>
+</Steps>
+
+### Declining Invites
+
+If you don't want to join:
+- Click **Decline** or simply close the page
+- The invite remains valid for others (doesn't consume a use)
+- You won't be added to the group
+
+## Managing Group Access
+
+### Viewing Current Members
+
+See who has access to your group:
+1. Navigate to your group
+2. Open the members section
+3. View all current members and the group owner
+
+### Removing Members
+
+As the group owner, you can remove members:
+
+<Steps>
+  <Step title="Find the Member">
+    Locate the member you want to remove in the members list.
+  </Step>
+  
+  <Step title="Remove Access">
+    Click the remove button next to their name and confirm.
+  </Step>
+  
+  <Step title="Verify Removal">
+    The member no longer has access to the group but:
+    - Their past expense contributions remain
+    - Settlements involving them stay intact
+    - Historical data is preserved
+  </Step>
+</Steps>
+
+<Warning>
+  Removing a member doesn't delete them from expense history. If they participated in expenses, those records remain for accurate accounting.
+</Warning>
+
+### Leaving a Group
+
+Members (non-owners) can leave groups they've joined:
+
+1. Open the group
+2. Click **Leave Group**
+3. Confirm your decision
+
+<Note>
+  Group owners cannot leave their own groups. To stop managing a group, delete it or transfer ownership (if that feature is available).
+</Note>
+
+## Invite Link Security
+
+### Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Share Privately" icon="lock">
+    Send invite links directly to intended recipients, not in public forums or social media.
+  </Card>
+  
+  <Card title="Set Appropriate Limits" icon="users">
+    Use the minimum necessary max uses. Don't set 10 if you're only inviting 3 people.
+  </Card>
+  
+  <Card title="Generate Fresh Links" icon="rotate">
+    Create new invites for each invitation wave rather than reusing old links.
+  </Card>
+  
+  <Card title="Monitor Membership" icon="eye">
+    Regularly review who has access to your group and remove anyone who shouldn't.
+  </Card>
+</CardGroup>
+
+### What Makes Invite Links Secure
+
+1. **Cryptographic Tokens**: Links use long, random tokens that are practically impossible to guess
+2. **Hash Storage**: The actual token is hashed before storage, protecting against database breaches
+3. **Expiration**: 7-day expiration limits the window of vulnerability
+4. **Use Limits**: Maximum uses prevent unlimited access from a single link
+5. **Rate Limiting**: Daily invite limits prevent spam and abuse
+
+## Real-World Scenarios
+
+<AccordionGroup>
+  <Accordion title="Scenario: New Roommate Moving In">
+    **Situation:** A new person is joining your shared apartment.
+    
+    **Steps:**
+    1. Generate an invite link with max uses = 1
+    2. Send directly to the new roommate
+    3. They create an EquiShare account (or sign in)
+    4. They accept the invite and join the group
+    5. They can now add their share of expenses and view settlements
+    
+    **Benefit:** The roommate can independently track expenses and see what they owe without you having to manually update them.
+  </Accordion>
+  
+  <Accordion title="Scenario: Planning a Group Trip">
+    **Situation:** 8 friends planning a vacation together.
+    
+    **Steps:**
+    1. Create a group for the trip
+    2. Generate an invite link with max uses = 10
+    3. Share the link in your private group chat
+    4. Friends join as they're ready
+    5. Everyone can add expenses during the trip
+    6. Everyone can see running totals and settlements
+    
+    **Benefit:** Distributed expense tracking - anyone can add expenses when they pay for something, reducing the burden on one person.
+  </Accordion>
+  
+  <Accordion title="Scenario: Office Team Lunch Group">
+    **Situation:** Work team that regularly shares lunch expenses.
+    
+    **Steps:**
+    1. Create a persistent group for team lunches
+    2. Generate invite with max uses = number of team members
+    3. Share via team chat or email
+    4. Team members join over time
+    5. Ongoing expense tracking for all team lunches
+    
+    **Benefit:** Transparent expense sharing where everyone can see the full picture and verify their share.
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Invite link isn't working">
+    Check if the link:
+    - Has expired (more than 7 days old)
+    - Has reached maximum uses
+    - Was copied correctly (no missing characters)
+    
+    Solution: Generate a new invite link.
+  </Accordion>
+  
+  <Accordion title="Can't generate more invite links">
+    You may have hit the rate limit (10 invites per day per group).
+    
+    Solution: Wait 24 hours and try again, or use an existing valid invite if you have one.
+  </Accordion>
+  
+  <Accordion title="Person says they're already a member">
+    If someone tries to join but already has access:
+    - They should sign in with their existing account
+    - The invite link will inform them they're already a member
+    - No need to accept again
+  </Accordion>
+  
+  <Accordion title="Want to invite someone but they don't want an account">
+    If someone doesn't want to create an account:
+    - Add them as a "person" (by name only)
+    - You can still include them in expense splits
+    - They won't have login access, but you can share updates with them manually
+  </Accordion>
+  
+  <Accordion title="Invited the wrong person">
+    If someone joins who shouldn't have access:
+    1. Go to the members section
+    2. Remove them from the group
+    3. They will lose access immediately
+    4. Generate a new invite link if needed
+  </Accordion>
+</AccordionGroup>
+
+## API Reference
+
+For developers building invite functionality:
+
+- `invite.createInvite` - Generate a new invite link
+- `invite.getInviteByToken` - Retrieve invite details
+- `invite.acceptInvite` - Accept an invite and join the group
+- `invite.rejectInvite` - Decline an invite
+
+See the [Invite Router API](/api/routers/invite) for complete documentation.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Track Expenses" icon="receipt" href="/guides/tracking-expenses">
+    Now that you have members, start tracking shared expenses.
+  </Card>
+  
+  <Card title="Settle Up" icon="handshake" href="/guides/settling-up">
+    Learn how settlements work with multiple members.
+  </Card>
+  
+  <Card title="Invites Feature" icon="book" href="/features/invites">
+    Explore the complete invites feature documentation.
+  </Card>
+  
+  <Card title="Create Groups" icon="users" href="/guides/creating-groups">
+    Create additional groups for different contexts.
+  </Card>
+</CardGroup>

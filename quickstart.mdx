@@ -1,80 +1,310 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quickstart
+description: Get started with EquiShare in 5 minutes - from sign-in to your first settled expense
 ---
 
-## Get started in three steps
+## Welcome to EquiShare!
 
-Get your documentation site running locally and make your first customization.
+This guide will walk you through everything you need to start splitting expenses with your friends, family, or colleagues. In just a few minutes, you'll:
 
-### Step 1: Set up your local environment
-
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 2: Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
-
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
-
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 3: Go live
-
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
-
-## Next steps
-
-Now that you have your docs running, explore these key features:
-
-<CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
-</CardGroup>
+- Sign in with Google
+- Create your first group
+- Add members
+- Record an expense
+- View settlement suggestions
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+  Before you begin, make sure you have a Google account for authentication.
 </Note>
+
+## Getting Started
+
+<Steps>
+  <Step title="Sign In with Google">
+    Navigate to your EquiShare instance and click the **"Continue with Google"** button to sign in.
+    
+    ```tsx
+    // EquiShare uses NextAuth.js for secure authentication
+    await signIn("google", { callbackUrl: "/groups" });
+    ```
+    
+    After successful authentication, you'll be redirected to your Groups dashboard.
+    
+    <Info>
+      EquiShare uses NextAuth.js 5 with Google OAuth for secure, passwordless authentication. Your credentials are never stored on EquiShare servers.
+    </Info>
+  </Step>
+
+  <Step title="Create Your First Group">
+    On the Groups page, click the **"Create New Group"** button to open the group creation dialog.
+    
+    **Fill in the group details:**
+    
+    1. **Group Name** (required): Give your group a descriptive name
+       - Examples: "Weekend Trip to Miami", "Apartment 4B", "Office Lunch Club"
+    
+    2. **Add People** (optional): Add non-registered participants to your group
+       - Type a name and press Enter or click the + button
+       - These are people who don't have EquiShare accounts but participated in expenses
+       - You can also add them later
+    
+    ```tsx
+    // Groups can be created with initial people
+    const group = await api.group.create.mutate({
+      name: "Weekend Trip to Miami",
+      people: ["Alex", "Jordan", "Sam"]
+    });
+    ```
+    
+    Click **"Create Group"** when ready. You'll be automatically taken to your new group's page.
+    
+    <Tip>
+      Start with just a group name if you're not sure who will participate yet. You can always add people later!
+    </Tip>
+  </Step>
+
+  <Step title="Invite Group Members (Optional)">
+    To collaborate with other EquiShare users, invite them to your group:
+    
+    1. Click the **"Invite Members"** button on your group page
+    2. Enter the email addresses of people you want to invite
+    3. They'll receive an invitation link to join your group
+    
+    **Group Members vs. People:**
+    - **Members**: Registered EquiShare users who can view and add expenses
+    - **People**: Non-registered participants you can assign to expenses
+    
+    <Info>
+      Only the group owner can invite members and delete the group. All members can add expenses and people.
+    </Info>
+  </Step>
+
+  <Step title="Add Your First Expense">
+    Now let's record an expense. Click the **"Add Expense"** button.
+    
+    **Step 1: Expense Details**
+    
+    1. **Description**: What was the expense for?
+       - Example: "Hotel room for 3 nights"
+    
+    2. **Amount**: How much was spent?
+       - Example: 450.00
+    
+    3. **Paid by**: Who paid for this expense?
+       - Select from your group members or people
+    
+    4. **Split between**: Who should share this expense?
+       - Select all participants who should pay their share
+       - You can select multiple people
+    
+    Click **"Continue"** to proceed to split configuration.
+    
+    **Step 2: Configure the Split**
+    
+    Choose how to split the expense:
+    
+    <Tabs>
+      <Tab title="Equal Split">
+        The amount is divided equally among all selected participants.
+        
+        ```tsx
+        // Example: $450 split equally among 3 people = $150 each
+        splitMode: "equal"
+        ```
+        
+        This is the default and most common option.
+      </Tab>
+      
+      <Tab title="Percentage Split">
+        Assign a percentage to each participant (must total 100%).
+        
+        ```tsx
+        // Example: $450 split 50%, 30%, 20%
+        splitMode: "percentage"
+        shareValues: {
+          "person-1-id": 50,
+          "person-2-id": 30,
+          "person-3-id": 20
+        }
+        ```
+      </Tab>
+      
+      <Tab title="Exact Amount">
+        Specify the exact amount each participant should pay.
+        
+        ```tsx
+        // Example: Custom amounts that total $450
+        splitMode: "exact"
+        shareValues: {
+          "person-1-id": 200,
+          "person-2-id": 150,
+          "person-3-id": 100
+        }
+        ```
+      </Tab>
+      
+      <Tab title="Shares">
+        Assign shares/units to each participant.
+        
+        ```tsx
+        // Example: 3 shares, 2 shares, 1 share (ratio 3:2:1)
+        splitMode: "shares"
+        shareValues: {
+          "person-1-id": 3,
+          "person-2-id": 2,
+          "person-3-id": 1
+        }
+        ```
+      </Tab>
+    </Tabs>
+    
+    Click **"Add Expense"** to save.
+    
+    <Check>
+      Your expense is now recorded! EquiShare automatically calculates balances and settlement suggestions.
+    </Check>
+  </Step>
+
+  <Step title="View Balances and Settlements">
+    After adding expenses, EquiShare shows you:
+    
+    **Group Summary (Top of page)**
+    - Total expenses in the group
+    - Number of expenses recorded
+    - Quick balance overview
+    
+    **Expenses List**
+    - All expenses with descriptions, amounts, and splits
+    - Who paid and who participated
+    - Individual shares for each person
+    
+    **Settlements Section**
+    
+    This is where the magic happens! EquiShare calculates the optimal way to settle all debts:
+    
+    ```tsx
+    // EquiShare minimizes transactions using smart algorithms
+    // Example: If A owes B $50 and B owes C $50, 
+    // it simplifies to: A pays C $50
+    ```
+    
+    Each settlement shows:
+    - **From**: Who needs to pay
+    - **To**: Who should receive payment
+    - **Amount**: How much to transfer
+    
+    <Tip>
+      Click the checkmark button to mark a settlement as complete once the money has been transferred.
+    </Tip>
+  </Step>
+
+  <Step title="Mark Settlements as Complete">
+    When someone pays their debt:
+    
+    1. Find the settlement in the Settlements list
+    2. Click the **checkmark** or **"Settle"** button
+    3. The settlement is marked as paid
+    4. EquiShare recalculates remaining settlements automatically
+    
+    You can also use **"Settle All"** to mark all current settlements as complete at once.
+    
+    <Warning>
+      Only mark settlements as complete after the actual money transfer happens. This ensures your balances stay accurate.
+    </Warning>
+  </Step>
+</Steps>
+
+## What's Next?
+
+<CardGroup cols={2}>
+  <Card
+    title="Explore Features"
+    icon="compass"
+    href="/features/groups"
+  >
+    Learn about all the powerful features in EquiShare
+  </Card>
+  <Card
+    title="Settlements"
+    icon="scale-balanced"
+    href="/features/settlements"
+  >
+    Understand how EquiShare calculates optimal settlements
+  </Card>
+  <Card
+    title="Manage Groups"
+    icon="users-gear"
+    href="/guides/creating-groups"
+  >
+    Deep dive into group management and permissions
+  </Card>
+  <Card
+    title="API Documentation"
+    icon="code"
+    href="/api/overview"
+  >
+    Integrate with EquiShare using our API
+  </Card>
+</CardGroup>
+
+## Common Workflows
+
+<AccordionGroup>
+  <Accordion title="Split a Restaurant Bill" icon="utensils">
+    1. Create a group for the dinner (e.g., "Friday Dinner")
+    2. Add people who attended
+    3. Add expense for the total bill
+    4. Choose "equal" split if everyone pays the same
+    5. Or use "exact" if people ordered different amounts
+    6. View who owes the person who paid
+  </Accordion>
+
+  <Accordion title="Track Roommate Expenses" icon="house">
+    1. Create a group (e.g., "Apartment 4B")
+    2. Invite your roommates as members
+    3. Add recurring expenses (rent, utilities, groceries)
+    4. Use different split modes based on usage
+    5. Check balances monthly
+    6. Settle up at the end of the month
+  </Accordion>
+
+  <Accordion title="Plan a Group Trip" icon="plane">
+    1. Create a group for the trip
+    2. Invite all travelers as members
+    3. Add expenses as they happen (flights, hotels, meals, activities)
+    4. Different people can pay for different things
+    5. At trip end, view settlement summary
+    6. Everyone pays their share to settle up
+    7. Export final summary for records
+  </Accordion>
+</AccordionGroup>
+
+## Tips for Success
+
+<CardGroup cols={2}>
+  <Card title="Add Expenses Promptly" icon="clock">
+    Record expenses soon after they happen to avoid forgetting details.
+  </Card>
+  <Card title="Use Descriptive Names" icon="file-signature">
+    Clear descriptions help everyone remember what the expense was for.
+  </Card>
+  <Card title="Review Before Settling" icon="eye">
+    Check all expenses are recorded before marking settlements complete.
+  </Card>
+  <Card title="Communicate" icon="comments">
+    Discuss with your group before making changes or settling up.
+  </Card>
+</CardGroup>
+
+## Need Help?
+
+If you run into any issues:
+
+- Check the [Features Documentation](/features/groups) for detailed explanations
+- Review the [API Reference](/api/overview) if you're integrating
+- Report bugs on [GitHub Issues](https://github.com/MrDXTR/EquiShare/issues)
+- Contribute improvements via [Pull Requests](https://github.com/MrDXTR/EquiShare/pulls)
+
+<Check>
+  You're all set! Start splitting expenses smarter with EquiShare.
+</Check>

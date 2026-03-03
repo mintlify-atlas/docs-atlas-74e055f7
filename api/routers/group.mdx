@@ -1,0 +1,396 @@
+---
+title: 'Group Router'
+description: 'API reference for the group router - manage groups, members, and people'
+---
+
+## Overview
+
+The group router handles all operations related to groups, including creating groups, managing members, adding/removing people, and checking access permissions.
+
+**Authorization:** All procedures require authentication (`protectedProcedure`)
+
+---
+
+## create
+
+Create a new group with initial people.
+
+### Input
+
+<ParamField path="name" type="string" required>
+  Name of the group (minimum 1 character)
+</ParamField>
+
+<ParamField path="people" type="string[]" required>
+  Array of people names to add to the group (each name must be at least 1 character)
+</ParamField>
+
+### Returns
+
+<ResponseField name="id" type="string">
+  Unique identifier for the created group
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Name of the group
+</ResponseField>
+
+<ResponseField name="createdById" type="string">
+  User ID of the group creator
+</ResponseField>
+
+<ResponseField name="people" type="Person[]">
+  Array of people in the group with their IDs and names
+</ResponseField>
+
+### Example
+
+```typescript
+const newGroup = await trpc.group.create.mutate({
+  name: "Vacation 2024",
+  people: ["Alice", "Bob", "Charlie"]
+});
+```
+
+---
+
+## getAll
+
+Get all groups the current user has access to (owns or is a member of).
+
+### Input
+
+No input parameters required.
+
+### Returns
+
+Array of groups with full details:
+
+<ResponseField name="id" type="string">
+  Unique identifier for the group
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Name of the group
+</ResponseField>
+
+<ResponseField name="createdById" type="string">
+  User ID of the group creator
+</ResponseField>
+
+<ResponseField name="people" type="Person[]">
+  All people (non-user participants) in the group
+</ResponseField>
+
+<ResponseField name="expenses" type="Expense[]">
+  All expenses with shares and payer information
+</ResponseField>
+
+<ResponseField name="members" type="User[]">
+  User members of the group (id, name, image)
+</ResponseField>
+
+<ResponseField name="createdBy" type="User">
+  Group creator information (id, name, image)
+</ResponseField>
+
+### Business Logic
+
+Returns groups where the user is either:
+- The creator (`createdById` matches user ID)
+- A member (user ID exists in `members` array)
+
+### Example
+
+```typescript
+const myGroups = await trpc.group.getAll.query();
+
+myGroups.forEach(group => {
+  console.log(`${group.name}: ${group.expenses.length} expenses`);
+});
+```
+
+---
+
+## getById
+
+Get detailed information about a specific group.
+
+### Input
+
+<ParamField path="id" type="string" required>
+  Group ID to retrieve
+</ParamField>
+
+### Returns
+
+<ResponseField name="id" type="string">
+  Unique identifier for the group
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Name of the group
+</ResponseField>
+
+<ResponseField name="createdById" type="string">
+  User ID of the group creator
+</ResponseField>
+
+<ResponseField name="people" type="Person[]">
+  All people in the group
+</ResponseField>
+
+<ResponseField name="expenses" type="Expense[]">
+  All expenses with detailed share information
+</ResponseField>
+
+<ResponseField name="members" type="User[]">
+  User members (id, name, image)
+</ResponseField>
+
+<ResponseField name="createdBy" type="User">
+  Creator information (id, name, image)
+</ResponseField>
+
+<ResponseField name="isOwner" type="boolean">
+  Whether the current user is the group owner
+</ResponseField>
+
+<ResponseField name="isMember" type="boolean">
+  Whether the current user is a member of the group
+</ResponseField>
+
+### Authorization
+
+Throws `FORBIDDEN` error if the user is neither the owner nor a member of the group.
+
+### Example
+
+```typescript
+const group = await trpc.group.getById.query("group_id_123");
+
+if (group.isOwner) {
+  console.log("You can manage this group");
+}
+```
+
+---
+
+## delete
+
+Delete a group. Only the group owner can delete a group.
+
+### Input
+
+<ParamField path="id" type="string" required>
+  Group ID to delete
+</ParamField>
+
+### Returns
+
+<ResponseField name="success" type="boolean">
+  Always returns `true` on successful deletion
+</ResponseField>
+
+### Authorization
+
+Throws `FORBIDDEN` error if the user is not the group owner.
+
+### Example
+
+```typescript
+await trpc.group.delete.mutate("group_id_123");
+```
+
+---
+
+## addPerson
+
+Add a new person (non-user participant) to a group.
+
+### Input
+
+<ParamField path="groupId" type="string" required>
+  ID of the group to add the person to
+</ParamField>
+
+<ParamField path="name" type="string" required>
+  Name of the person (minimum 1 character)
+</ParamField>
+
+### Returns
+
+<ResponseField name="id" type="string">
+  Unique identifier for the created person
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Name of the person
+</ResponseField>
+
+<ResponseField name="groupId" type="string">
+  ID of the group the person belongs to
+</ResponseField>
+
+### Authorization
+
+User must be either the group owner or a member to add people.
+
+### Example
+
+```typescript
+const newPerson = await trpc.group.addPerson.mutate({
+  groupId: "group_id_123",
+  name: "David"
+});
+```
+
+---
+
+## deletePerson
+
+Remove a person from a group. The person must not be referenced in any expenses or settlements.
+
+### Input
+
+<ParamField path="groupId" type="string" required>
+  ID of the group
+</ParamField>
+
+<ParamField path="personId" type="string" required>
+  ID of the person to remove
+</ParamField>
+
+### Returns
+
+<ResponseField name="success" type="boolean">
+  Always returns `true` on successful deletion
+</ResponseField>
+
+### Authorization
+
+User must be either the group owner or a member.
+
+### Validation Rules
+
+1. Person must belong to the specified group
+2. Person must not be referenced in any:
+   - Expenses (as payer)
+   - Shares (as participant)
+   - Settlements (as sender or receiver)
+
+Throws `BAD_REQUEST` if the person is referenced in any expenses or settlements.
+
+### Example
+
+```typescript
+await trpc.group.deletePerson.mutate({
+  groupId: "group_id_123",
+  personId: "person_id_456"
+});
+```
+
+---
+
+## checkGroupAccess
+
+Check if the current user has access to a group and their role.
+
+### Input
+
+<ParamField path="id" type="string" required>
+  Group ID to check access for
+</ParamField>
+
+### Returns
+
+<ResponseField name="hasAccess" type="boolean">
+  Whether the user has access to the group
+</ResponseField>
+
+<ResponseField name="isOwner" type="boolean">
+  Whether the user is the group owner
+</ResponseField>
+
+### Example
+
+```typescript
+const access = await trpc.group.checkGroupAccess.query("group_id_123");
+
+if (!access.hasAccess) {
+  console.log("You don't have access to this group");
+} else if (access.isOwner) {
+  console.log("You own this group");
+} else {
+  console.log("You're a member of this group");
+}
+```
+
+---
+
+## leaveGroup
+
+Leave a group that you're a member of. Group owners cannot leave their own groups.
+
+### Input
+
+<ParamField path="id" type="string" required>
+  Group ID to leave
+</ParamField>
+
+### Returns
+
+<ResponseField name="success" type="boolean">
+  Always returns `true` on success
+</ResponseField>
+
+### Authorization
+
+Throws `FORBIDDEN` if:
+- User is not a member of the group
+- User is the group owner (owners cannot leave their own groups)
+
+### Example
+
+```typescript
+await trpc.group.leaveGroup.mutate("group_id_123");
+```
+
+---
+
+## removeMember
+
+Remove a user member from a group. Only the group owner can remove members.
+
+### Input
+
+<ParamField path="groupId" type="string" required>
+  ID of the group
+</ParamField>
+
+<ParamField path="memberId" type="string" required>
+  User ID of the member to remove
+</ParamField>
+
+### Returns
+
+<ResponseField name="success" type="boolean">
+  Always returns `true` on success
+</ResponseField>
+
+### Authorization
+
+Throws `FORBIDDEN` if:
+- User is not the group owner
+
+Throws `BAD_REQUEST` if:
+- Trying to remove the owner from the group
+
+### Example
+
+```typescript
+await trpc.group.removeMember.mutate({
+  groupId: "group_id_123",
+  memberId: "user_id_789"
+});
+```

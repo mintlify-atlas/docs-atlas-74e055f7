@@ -1,0 +1,336 @@
+---
+title: 'Settling Up'
+description: 'Understanding who owes whom, marking settlements as paid, and viewing settlement history'
+icon: 'handshake'
+---
+
+## Overview
+
+EquiShare automatically calculates optimal settlements to minimize the number of transactions needed to settle all debts within a group. Instead of tracking individual expense-to-expense payments, the app computes net balances and suggests the most efficient payment plan.
+
+<Info>
+  Settlements are recalculated automatically whenever expenses are added, deleted, or marked as settled. You always see the current optimal payment plan.
+</Info>
+
+## Understanding Settlements
+
+### How Settlement Calculation Works
+
+When you track expenses in EquiShare, the app:
+
+1. **Calculates net balances** for each person
+   - Adds up everything they paid
+   - Subtracts everything they owe
+   - Determines if they should receive money (positive balance) or pay money (negative balance)
+
+2. **Optimizes payment flow**
+   - Minimizes the number of transactions needed
+   - Creates direct settlements between people
+   - Reduces complex chains of payments
+
+3. **Updates in real-time**
+   - Recalculates after each new expense
+   - Adjusts when expenses are deleted
+   - Updates when settlements are marked as paid
+
+### Settlement States
+
+**Unsettled (Active)**
+- Outstanding payments that need to be made
+- Shown at the top of the settlements list
+- Highlighted for easy visibility
+- Ready to be marked as paid
+
+**Settled (Paid)**
+- Payments that have been completed
+- Moved to settlement history
+- No longer included in calculations
+- Kept for record-keeping
+
+## Viewing Who Owes Whom
+
+<Steps>
+  <Step title="Navigate to Your Group">
+    Open the group where you want to review settlements.
+  </Step>
+
+  <Step title="Check the Settlements Section">
+    The settlements area shows all current payment obligations.
+    
+    Each settlement displays:
+    - **From**: Person who needs to pay
+    - **To**: Person who should receive payment
+    - **Amount**: How much needs to be transferred
+    - **Status**: Unsettled or Settled
+    
+    <Tip>
+      Unsettled payments appear first, making it easy to see what needs action.
+    </Tip>
+  </Step>
+
+  <Step title="Understand Your Balance">
+    Your personal balance tells you:
+    - **Positive balance**: Others owe you money
+    - **Negative balance**: You owe money to others
+    - **Zero balance**: You're all settled up
+    
+    The app shows exactly who you need to pay or who needs to pay you.
+  </Step>
+</Steps>
+
+## Marking Settlements as Paid
+
+When someone makes a payment, record it in EquiShare to keep balances accurate.
+
+<Steps>
+  <Step title="Complete the Payment">
+    Make the actual payment outside EquiShare:
+    - Bank transfer
+    - Cash
+    - Payment apps (UPI, PayTm, etc.)
+    - Any method agreed upon by the group
+    
+    <Warning>
+      EquiShare doesn't process payments. It only tracks who owes whom. You must handle actual money transfers separately.
+    </Warning>
+  </Step>
+
+  <Step title="Mark as Settled in EquiShare">
+    After the payment is complete:
+    1. Find the corresponding settlement in the list
+    2. Click **Mark as Paid** or the checkmark button
+    3. Confirm the action
+    
+    The settlement will:
+    - Move to your settlement history
+    - Be marked as paid
+    - Stop appearing in unsettled payments
+    - Trigger a recalculation of remaining settlements
+  </Step>
+
+  <Step title="Verify Updated Balances">
+    After marking a settlement as paid, check that:
+    - Your balance updated correctly
+    - Other settlements adjusted if needed
+    - The settlement appears in your history
+  </Step>
+</Steps>
+
+### Settle All at Once
+
+If all debts in a group have been paid, use the **Settle All** button:
+
+1. Click **Settle All** in the settlements section
+2. Confirm that all payments have been made
+3. All unsettled payments move to history
+4. Everyone's balance returns to zero
+
+<Warning>
+  Only use Settle All when all payments are actually complete. This action marks ALL unsettled payments as paid.
+</Warning>
+
+## Settlement History
+
+EquiShare maintains a complete history of all settlements.
+
+### Viewing Past Settlements
+
+The settlement history shows:
+- All previously settled payments
+- When each settlement was marked as paid
+- Which expense(s) contributed to each settlement
+- The amount that was settled
+
+### Why Settlement History Matters
+
+**Record Keeping**
+- Proof of who paid whom and when
+- Useful for tax purposes or record-keeping
+- Helps resolve disputes
+
+**Transparency**
+- Everyone can see the complete payment history
+- Builds trust in the group
+- Makes it easy to verify past transactions
+
+**Reference**
+- Look back at how expenses were settled
+- Understand payment patterns over time
+- Review completed transactions
+
+## Real-World Examples
+
+<AccordionGroup>
+  <Accordion title="Example 1: Simple Three-Person Split">
+    **The Situation:**
+    - Alex paid ₹3,000 for a hotel
+    - Beth paid ₹1,200 for gas
+    - Carlos paid ₹600 for food
+    - Total expenses: ₹4,800
+    - Each person's fair share: ₹1,600
+    
+    **Net Balances:**
+    - Alex: Paid ₹3,000, owes ₹1,600 = **+₹1,400** (should receive)
+    - Beth: Paid ₹1,200, owes ₹1,600 = **-₹400** (should pay)
+    - Carlos: Paid ₹600, owes ₹1,600 = **-₹1,000** (should pay)
+    
+    **Optimal Settlements:**
+    - Beth pays Alex ₹400
+    - Carlos pays Alex ₹1,000
+    
+    **Result:** Just 2 transactions settle everyone (instead of potentially 6 if tracking every expense individually).
+  </Accordion>
+  
+  <Accordion title="Example 2: Unequal Expense Sharing">
+    **The Situation:**
+    - 4 roommates sharing apartment costs
+    - Rent ₹32,000 split as 40%/30%/20%/10% based on room sizes
+    - Electricity ₹2,000 split equally
+    - Person A paid both bills (₹34,000 total)
+    
+    **What Each Person Owes:**
+    - Person A: 40% of ₹32,000 + 25% of ₹2,000 = ₹13,300 (but paid ₹34,000)
+    - Person B: 30% of ₹32,000 + 25% of ₹2,000 = ₹10,100
+    - Person C: 20% of ₹32,000 + 25% of ₹2,000 = ₹6,900
+    - Person D: 10% of ₹32,000 + 25% of ₹2,000 = ₹3,700
+    
+    **Net Balances:**
+    - Person A: **+₹20,700** (should receive)
+    - Person B: **-₹10,100** (should pay)
+    - Person C: **-₹6,900** (should pay)
+    - Person D: **-₹3,700** (should pay)
+    
+    **Optimal Settlements:**
+    - Person B pays Person A ₹10,100
+    - Person C pays Person A ₹6,900
+    - Person D pays Person A ₹3,700
+  </Accordion>
+  
+  <Accordion title="Example 3: Complex Multi-Expense Trip">
+    **The Situation:**
+    - 5 friends on a 3-day trip
+    - 12 different expenses
+    - Everyone paid for different things at different times
+    - Some expenses split equally, others split by who participated
+    
+    **Without EquiShare:**
+    - Would need to track each expense individually
+    - Potentially 30+ individual transactions to settle
+    - Easy to lose track of who owes what
+    
+    **With EquiShare:**
+    - App calculates net balances automatically
+    - Suggests 3-4 optimal payments
+    - Everyone knows exactly what they owe or are owed
+    - Simple, clear settlement process
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Mark Settlements Promptly" icon="clock">
+    Record payments in EquiShare immediately after making them. This keeps balances current and prevents confusion.
+  </Card>
+  
+  <Card title="Verify Before Settling" icon="check-circle">
+    Before marking a settlement as paid, confirm that the actual money transfer completed successfully.
+  </Card>
+  
+  <Card title="Communicate with the Group" icon="comments">
+    Let people know when you've made a payment. A quick message like "Just paid you via UPI" helps everyone stay synchronized.
+  </Card>
+  
+  <Card title="Review Regularly" icon="eye">
+    Check settlements regularly, especially during ongoing shared living situations or long trips.
+  </Card>
+</CardGroup>
+
+## Understanding the Settlement Algorithm
+
+EquiShare uses a greedy algorithm to minimize transactions:
+
+1. **Calculate net balances** for everyone
+2. **Identify creditors** (people who should receive money)
+3. **Identify debtors** (people who should pay money)
+4. **Match largest debtor with largest creditor**
+5. **Repeat** until all balances are zero
+
+This approach ensures the minimum number of transactions while settling all debts.
+
+<Info>
+  The algorithm always produces the same result for a given set of expenses, ensuring consistency and fairness.
+</Info>
+
+## Exporting Settlement Data
+
+You can export settlement information for your records:
+
+- **CSV Export**: Download a spreadsheet of all settlements
+- **Image Export**: Generate a visual summary to share
+- **PDF Reports**: Create printable settlement summaries
+
+See your group's export options for available formats.
+
+## API Reference
+
+For developers working with settlements:
+
+- `settlement.list` - Get all settlements for a group
+- `settlement.settle` - Mark a single settlement as paid
+- `settlement.settleAll` - Mark all settlements as paid
+- `settlement.recompute` - Manually trigger recalculation
+
+See the [Settlement Router API](/api/routers/settlement) for complete details.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Track More Expenses" icon="receipt" href="/guides/tracking-expenses">
+    Continue adding expenses as they occur.
+  </Card>
+  
+  <Card title="Invite Members" icon="user-plus" href="/guides/inviting-members">
+    Add more people to your group with invite links.
+  </Card>
+  
+  <Card title="Settlements Feature" icon="book" href="/features/settlements">
+    Deep dive into settlement features and capabilities.
+  </Card>
+  
+  <Card title="Create New Group" icon="users" href="/guides/creating-groups">
+    Start tracking expenses for a different group.
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Settlement calculations seem wrong">
+    Settlement calculations are based on net balances, not individual expenses. The app optimizes for minimum transactions, so the person you pay might not be the person you shared a specific expense with.
+    
+    To verify:
+    1. Check your net balance
+    2. Add up all you paid
+    3. Subtract all you owe
+    4. The difference should match your balance
+  </Accordion>
+  
+  <Accordion title="Can't mark a settlement as paid">
+    Ensure:
+    - You have access to the group (owner or member)
+    - The settlement exists and is unsettled
+    - You're connected to the internet
+    - You have the necessary permissions
+  </Accordion>
+  
+  <Accordion title="Settlement disappeared after marking as paid">
+    This is expected behavior. Settled payments move to settlement history. Check the history section to see past settlements.
+  </Accordion>
+  
+  <Accordion title="Need to undo a settled payment">
+    You cannot directly undo a settled payment. If marked incorrectly:
+    1. Add a correcting expense to adjust balances
+    2. Or contact your group owner to delete and recreate relevant expenses
+  </Accordion>
+</AccordionGroup>

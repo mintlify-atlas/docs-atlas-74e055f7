@@ -1,0 +1,339 @@
+---
+title: 'Invite Router'
+description: 'API reference for the invite router - create and manage group invitations'
+---
+
+## Overview
+
+The invite router handles group invitation functionality, including creating invite links, validating invites, and accepting/rejecting invitations. Invites use cryptographically secure tokens that are hashed for storage.
+
+**Authorization:** Mixed - some procedures are public (viewing invites), others require authentication
+
+---
+
+## createInvite
+
+Create a new invitation link for a group. Only group owners can create invites.
+
+### Input
+
+<ParamField path="groupId" type="string" required>
+  ID of the group to create an invite for
+</ParamField>
+
+<ParamField path="maxUses" type="number" optional default={10}>
+  Maximum number of times this invite can be used (1-10)
+</ParamField>
+
+### Returns
+
+<ResponseField name="invite" type="GroupInvite">
+  The created invite object with group and inviter details
+</ResponseField>
+
+<ResponseField name="inviteLink" type="string">
+  Full URL to the invite page (e.g., `https://app.com/invite/abc123...`)
+</ResponseField>
+
+<ResponseField name="inviteToken" type="string">
+  The raw invite token (only returned on creation, not stored in database)
+</ResponseField>
+
+### Authorization
+
+Required: `protectedProcedure`
+
+Throws `FORBIDDEN` if the user is not the group owner.
+
+### Rate Limiting
+
+Maximum 10 invites per group per 24 hours. Throws `TOO_MANY_REQUESTS` if limit is exceeded.
+
+### Invite Properties
+
+- **Expiration:** 7 days from creation
+- **Token Security:** Tokens are hashed using SHA-256 before storage
+- **Status:** Starts as `PENDING`
+
+### Example
+
+```typescript
+const { invite, inviteLink, inviteToken } = await trpc.invite.createInvite.mutate({
+  groupId: "group_id_123",
+  maxUses: 5
+});
+
+console.log(`Share this link: ${inviteLink}`);
+console.log(`Expires: ${invite.expiresAt.toLocaleDateString()}`);
+console.log(`Remaining uses: ${invite.remainingUses}`);
+
+// Example output:
+// Share this link: https://equishare.app/invite/8x7Ks9qLp3mN...
+// Expires: 3/10/2026
+// Remaining uses: 5
+```
+
+---
+
+## getInviteByToken
+
+Retrieve invite details by token. This is a public endpoint used to display invite information before accepting.
+
+### Input
+
+<ParamField path="token" type="string" required>
+  The raw invite token from the URL
+</ParamField>
+
+### Returns
+
+<ResponseField name="id" type="string">
+  Invite ID
+</ResponseField>
+
+<ResponseField name="groupId" type="string">
+  ID of the group being invited to
+</ResponseField>
+
+<ResponseField name="group" type="object">
+  Group details (id, name, people list)
+</ResponseField>
+
+<ResponseField name="invitedBy" type="User">
+  User who created the invite (id, name, image)
+</ResponseField>
+
+<ResponseField name="expiresAt" type="Date">
+  When the invite expires
+</ResponseField>
+
+<ResponseField name="remainingUses" type="number">
+  How many more times this invite can be used
+</ResponseField>
+
+<ResponseField name="status" type="enum">
+  Invite status: `PENDING`, `USED`, `EXPIRED`, or `REJECTED`
+</ResponseField>
+
+### Authorization
+
+Public endpoint (`publicProcedure`) - no authentication required.
+
+### Validation
+
+Throws errors if the invite is:
+- Not found (`NOT_FOUND`)
+- Expired (`BAD_REQUEST` and updates status to `EXPIRED`)
+- Out of uses (`BAD_REQUEST`)
+- Already used/rejected (`BAD_REQUEST`)
+
+### Example
+
+```typescript
+// On invite page load
+const token = window.location.pathname.split('/').pop();
+
+try {
+  const invite = await trpc.invite.getInviteByToken.query(token);
+  
+  console.log(`${invite.invitedBy.name} invited you to join "${invite.group.name}"`);
+  console.log(`Group members: ${invite.group.people.map(p => p.name).join(', ')}`);
+  console.log(`Expires in ${Math.ceil((invite.expiresAt - new Date()) / (1000 * 60 * 60 * 24))} days`);
+} catch (error) {
+  if (error.code === 'NOT_FOUND') {
+    console.log('Invalid invite link');
+  } else if (error.message.includes('expired')) {
+    console.log('This invite has expired');
+  }
+}
+```
+
+---
+
+## acceptInvite
+
+Accept an invitation and join the group as a member.
+
+### Input
+
+<ParamField path="token" type="string" required>
+  The raw invite token from the URL
+</ParamField>
+
+### Returns
+
+<ResponseField name="success" type="boolean">
+  Always returns `true` on success
+</ResponseField>
+
+<ResponseField name="groupId" type="string">
+  ID of the group you joined
+</ResponseField>
+
+### Authorization
+
+Required: `protectedProcedure` - user must be authenticated.
+
+### Validation
+
+Throws errors if:
+- Invite not found (`NOT_FOUND`)
+- Invite expired (`BAD_REQUEST`)
+- No remaining uses (`BAD_REQUEST`)
+- Invite not pending (`BAD_REQUEST`)
+- User already owns the group (`BAD_REQUEST`)
+- User already a member (`BAD_REQUEST`)
+
+### Side Effects
+
+1. Decrements `remainingUses` by 1
+2. Updates status to `USED` if no uses remain
+3. Connects user to the invite's `usedBy` relation
+4. Adds user to the group's `members` list
+
+### Example
+
+```typescript
+try {
+  const result = await trpc.invite.acceptInvite.mutate(inviteToken);
+  
+  // Redirect to group page
+  router.push(`/groups/${result.groupId}`);
+  
+  toast.success('Successfully joined the group!');
+} catch (error) {
+  if (error.message.includes('already a member')) {
+    console.log('You\'re already in this group');
+  } else {
+    console.error('Failed to accept invite:', error.message);
+  }
+}
+```
+
+---
+
+## rejectInvite
+
+Reject an invitation. The invite status is updated to `REJECTED`.
+
+### Input
+
+<ParamField path="token" type="string" required>
+  The raw invite token from the URL
+</ParamField>
+
+### Returns
+
+<ResponseField name="success" type="boolean">
+  Always returns `true` on success
+</ResponseField>
+
+### Authorization
+
+Required: `protectedProcedure`
+
+### Validation
+
+Throws errors if:
+- Invite not found (`NOT_FOUND`)
+- Invite not pending (`BAD_REQUEST`)
+
+### Example
+
+```typescript
+await trpc.invite.rejectInvite.mutate(inviteToken);
+console.log('Invite declined');
+```
+
+---
+
+## getMyInvites
+
+Get all pending invites for the current user.
+
+### Input
+
+No input parameters required.
+
+### Returns
+
+Array of invite objects with group and inviter details.
+
+### Authorization
+
+Required: `protectedProcedure`
+
+### Query Logic
+
+Returns invites where:
+- `invitedUserId` matches current user AND status is `PENDING`, OR
+- `invitedUserId` is null (open invites) AND status is `PENDING`
+
+### Example
+
+```typescript
+const myInvites = await trpc.invite.getMyInvites.query();
+
+myInvites.forEach(invite => {
+  console.log(`${invite.invitedBy.name} invited you to "${invite.group.name}"`);
+});
+
+// Example output:
+// Alice invited you to "Summer Vacation 2026"
+// Bob invited you to "Roommate Expenses"
+```
+
+---
+
+## Security & Token Handling
+
+### Token Generation
+
+```typescript
+// Generate cryptographically secure token
+const token = crypto.randomBytes(32).toString('base64url');
+// Hash for storage
+const hash = crypto.createHash('sha256').update(token).digest('hex');
+```
+
+**Important:** The raw token is only available at creation time. The database stores only the SHA-256 hash.
+
+### Token Verification Flow
+
+1. User receives invite link with raw token
+2. Client sends token to `getInviteByToken` or `acceptInvite`
+3. Server hashes the token using SHA-256
+4. Server looks up the invite by hashed token
+5. Server validates expiration, uses, and status
+
+### Best Practices
+
+```typescript
+// ✅ Good: Share the full invite link
+const { inviteLink } = await trpc.invite.createInvite.mutate({ groupId });
+navigator.clipboard.writeText(inviteLink);
+
+// ❌ Bad: Don't store or log raw tokens
+console.log(inviteToken); // Security risk!
+localStorage.setItem('token', inviteToken); // Never do this
+
+// ✅ Good: Handle expired invites gracefully
+try {
+  await trpc.invite.acceptInvite.mutate(token);
+} catch (error) {
+  if (error.message.includes('expired')) {
+    // Show "This invite has expired" message
+  }
+}
+```
+
+---
+
+## Invite Status Diagram
+
+```
+PENDING ──accept──→ USED (if remainingUses = 0)
+        ──accept──→ PENDING (if remainingUses > 0)
+        ──reject──→ REJECTED
+        ──expire──→ EXPIRED (auto-updated when accessed after expiresAt)
+```

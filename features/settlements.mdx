@@ -1,0 +1,420 @@
+---
+title: 'Settlements'
+description: 'Understand balances and settle debts efficiently with the minimal transaction algorithm'
+icon: 'arrow-right-arrow-left'
+---
+
+## Overview
+
+Settlements in EquiShare represent the actual payments needed to balance all debts within a group. Instead of tracking every individual expense debt, EquiShare calculates the optimal way to settle all balances with the minimum number of transactions.
+
+## How Settlements Work
+
+### From Expenses to Settlements
+
+As you add expenses, EquiShare tracks each person's balance:
+
+- **Positive balance**: This person is owed money (creditor)
+- **Negative balance**: This person owes money (debtor)
+- **Zero balance**: This person is settled up
+
+<Info>
+  Settlements are automatically recalculated every time an expense is added, deleted, or when a settlement is marked as paid.
+</Info>
+
+### Example: How Balances Build Up
+
+```
+Expense 1: ₹900 dinner paid by Alice, split equally among Alice, Bob, Carol
+- Alice: +₹900 - ₹300 = +₹600
+- Bob: -₹300
+- Carol: -₹300
+
+Expense 2: ₹600 taxi paid by Bob, split equally among Alice, Bob, Carol
+- Alice: +₹600 - ₹200 = +₹400 total
+- Bob: -₹300 + ₹600 - ₹200 = +₹100 total
+- Carol: -₹300 - ₹200 = -₹500 total
+
+Resulting settlements:
+- Carol pays Alice ₹400
+- Carol pays Bob ₹100
+```
+
+## The Minimal Transaction Algorithm
+
+EquiShare uses a debt simplification algorithm to minimize the number of payments needed.
+
+### How It Works
+
+<Steps>
+  <Step title="Calculate Net Balances">
+    Determine each person's final balance by summing all expenses and payments.
+  </Step>
+  
+  <Step title="Identify Creditors and Debtors">
+    Separate people into those owed money (positive balance) and those who owe (negative balance).
+  </Step>
+  
+  <Step title="Match Largest Amounts">
+    Start with the person who owes the most and the person who is owed the most.
+  </Step>
+  
+  <Step title="Create Optimal Settlements">
+    Match debtors to creditors, creating the minimum number of transactions.
+  </Step>
+</Steps>
+
+### Why This Matters
+
+**Without optimization**:
+```
+5 people, 10 expenses = potentially 45 settlements
+```
+
+**With minimal transaction algorithm**:
+```
+5 people, 10 expenses = typically 3-4 settlements
+```
+
+<Tip>
+  The algorithm can reduce dozens of person-to-person transactions down to just a handful of payments, making settlement much simpler.
+</Tip>
+
+## Viewing Settlements
+
+The Settlements section shows:
+
+### Active Settlements
+
+These are outstanding debts that need to be paid:
+
+- **Orange/Red background**: Unpaid settlements
+- **From** → **To**: Direction of payment
+- **Amount**: How much needs to be paid
+- **Settle button**: Mark as paid when completed
+
+### Settled Transactions
+
+View payment history by toggling "Show Settled":
+
+- **Green background**: Already paid settlements
+- **Checkmark badge**: Indicates completion
+- Historical record of all payments
+
+<Note>
+  You can toggle between showing only active settlements or including settled ones using the "Show Settled" switch.
+</Note>
+
+## Marking Settlements as Paid
+
+When someone makes a payment:
+
+### Single Settlement
+
+1. Find the settlement in the list
+2. Click the **Settle** button
+3. The settlement is marked as paid
+4. Balances are recalculated
+5. New optimal settlements are generated for remaining debts
+
+<Info>
+  Marking a settlement as paid doesn't delete it - it moves to the "Settled" history so you have a complete payment record.
+</Info>
+
+### Settle All
+
+If everyone has paid their debts:
+
+1. Click the **Settle All** button
+2. Confirm the action
+3. All active settlements are marked as paid
+4. The group shows as "All Settled Up"
+
+<Warning>
+  Only use "Settle All" when all debts have actually been paid. This action marks all outstanding settlements as complete.
+</Warning>
+
+## Understanding Settlement Details
+
+### Settlement Cards
+
+Each settlement displays:
+
+<CardGroup cols={2}>
+  <Card title="Participants" icon="users">
+    - **From**: The person who owes money
+    - **To**: The person who should receive payment
+    - Names shown as colored badges
+  </Card>
+  
+  <Card title="Amount" icon="indian-rupee">
+    - Displayed in large, bold text
+    - In rupees (₹) with 2 decimal places
+    - Color coded by status (red=unpaid, green=paid)
+  </Card>
+</CardGroup>
+
+### Settlement Status
+
+<Tabs>
+  <Tab title="Unsettled">
+    - Orange/red gradient background
+    - Shows the Settle button
+    - Included in balance calculations
+    - Appears at the top of the list
+  </Tab>
+  
+  <Tab title="Settled">
+    - Green gradient background
+    - Shows checkmark badge
+    - Only visible when "Show Settled" is on
+    - Appears below unsettled items
+  </Tab>
+</Tabs>
+
+## Balance Calculation
+
+Understand how your balance is calculated:
+
+### For Each Person
+
+1. **Start at zero**
+2. **Add**: All expenses they paid
+3. **Subtract**: All expense shares they owe
+4. **Add**: Settlements they've paid to others
+5. **Subtract**: Settlements others have paid to them
+
+### Rounding and Precision
+
+The system handles precision carefully:
+
+- Amounts are rounded to 2 decimal places (paisa)
+- Balances within ₹0.01 are considered settled
+- Settlements below ₹0.01 are not created
+- Auto-balance handles minor rounding differences
+
+## Exporting Settlement Data
+
+You can export settlement information along with group data:
+
+### What's Included in Exports
+
+- Current outstanding settlements
+- Historical settled transactions
+- Settlement amounts and dates
+- Participant information
+- Related expense details
+
+### Export Process
+
+1. Navigate to your group page
+2. Click the download icon
+3. Choose CSV or PDF format
+4. Settlement data is included automatically
+
+See the [Groups](/features/groups) page for more on exporting.
+
+## Settlement Workflows
+
+### End of Month Settlement
+
+<Steps>
+  <Step title="Review Settlements">
+    Check the Settlements section to see who owes whom.
+  </Step>
+  
+  <Step title="Make Payments">
+    Transfer money via your preferred payment method (UPI, bank transfer, cash).
+  </Step>
+  
+  <Step title="Mark as Paid">
+    As each payment is made, click Settle to mark it complete.
+  </Step>
+  
+  <Step title="Verify Balances">
+    Check that the remaining settlements match any unpaid debts.
+  </Step>
+</Steps>
+
+### Immediate Settlement
+
+For groups that settle up after each expense:
+
+1. Add the expense to the group
+2. Check the updated settlements
+3. Make payment immediately
+4. Mark the settlement as paid right away
+5. Group returns to "All Settled Up" state
+
+### Final Settlement (Closing a Group)
+
+When ending a group:
+
+1. Ensure all expenses are entered
+2. Export data for records
+3. Review all settlements
+4. Make all outstanding payments
+5. Click "Settle All" once everything is paid
+6. Export final settled data
+7. Consider deleting the group
+
+## Troubleshooting Settlements
+
+### Settlement Doesn't Match Expectations
+
+If settlements seem incorrect:
+
+<AccordionGroup>
+  <Accordion title="Check All Expenses">
+    - Review each expense in the group
+    - Verify amounts and splits are correct
+    - Look for missing or duplicate expenses
+    - Check that the right people are included in each split
+  </Accordion>
+  
+  <Accordion title="Review Settled History">
+    - Toggle "Show Settled" to see past payments
+    - Ensure previous settlements were marked correctly
+    - Check for settlements marked as paid by mistake
+  </Accordion>
+  
+  <Accordion title="Understand the Algorithm">
+    - The optimal path may not be intuitive
+    - Person A might pay Person B even if A paid B's expenses directly
+    - This is normal - the algorithm optimizes globally, not per-expense
+  </Accordion>
+</AccordionGroup>
+
+### Small Rounding Differences
+
+You might see very small amounts (like ₹0.01):
+
+- These occur due to floating-point math
+- Settlements below ₹0.01 are automatically ignored
+- Use Auto Balance when creating expenses to minimize rounding
+- These don't indicate errors, just normal computer math
+
+### "All Settled Up" but Someone Still Owes
+
+If the system shows settled but you know there's debt:
+
+1. Check if all expenses were entered
+2. Verify no expenses were accidentally deleted
+3. Look at settled history - might be marked paid incorrectly
+4. Consider if there's an external debt not tracked in EquiShare
+
+## Best Practices
+
+### Regular Settlement
+
+<Tip>
+  Settle up regularly (weekly or monthly) rather than letting debts accumulate. This makes payments smaller and more manageable.
+</Tip>
+
+### Clear Communication
+
+When settling:
+
+- Coordinate payment method beforehand
+- Confirm receipt before marking as settled
+- Include payment reference in transaction message
+- Screenshot settlements before paying for reference
+
+### Record Keeping
+
+- Export data before settling all debts
+- Keep export files for your records
+- Note payment methods used (useful for tax purposes)
+- Archive settled group exports
+
+### Payment Methods
+
+EquiShare doesn't process payments - you arrange payment yourself:
+
+- **UPI**: Quick and convenient for small amounts
+- **Bank Transfer**: Better for larger settlements
+- **Cash**: Fine for in-person settlements
+- **Payment Apps**: Venmo, PayPal, etc. work great
+
+<Warning>
+  Always mark settlements as paid only AFTER you've received or made the actual payment. Marking early can cause confusion.
+</Warning>
+
+## Understanding "All Settled Up"
+
+When you see the "All Settled Up" message:
+
+### What It Means
+
+- All current expenses are balanced
+- No active settlements exist
+- Everyone has paid their share
+- The group balance is zero
+
+### When You'll See It
+
+- Immediately after creating a new group (no expenses yet)
+- After settling all outstanding debts
+- When expenses perfectly balance (rare)
+
+### What It Doesn't Mean
+
+- It doesn't mean the group is closed
+- You can still add expenses
+- Historical data is still preserved
+- The group continues to exist
+
+## Advanced Scenarios
+
+<AccordionGroup>
+  <Accordion title="Complex Multi-Person Settlements">
+    **Scenario**: 6 people with multiple expenses
+    
+    **How it works**:
+    - System calculates net balance for each person
+    - Algorithm finds minimal transactions (usually 4-5 for 6 people)
+    - Payments may seem indirect but are mathematically optimal
+    - Trust the algorithm - it minimizes total transfers
+  </Accordion>
+  
+  <Accordion title="Partial Settlements">
+    **Scenario**: Someone pays part of what they owe
+    
+    **Solution**:
+    - Add the partial payment as a new expense
+    - Mark the person as payer, the creditor as sole participant
+    - Enter the partial amount paid
+    - System recalculates remaining balance automatically
+  </Accordion>
+  
+  <Accordion title="Person Leaves Group Mid-Settlement">
+    **Scenario**: Someone needs to settle and leave before the group ends
+    
+    **Solution**:
+    - Check their current settlements
+    - Have them pay their debts
+    - Mark those settlements as paid
+    - They can leave the group (if member, not owner)
+    - Their historical expenses remain but they're out of future ones
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Add Expenses" icon="receipt" href="/features/expenses">
+    Learn how expenses lead to settlements
+  </Card>
+  
+  <Card title="Export Data" icon="download" href="/features/groups#exporting-group-data">
+    Save settlement records for your archives
+  </Card>
+  
+  <Card title="API Reference" icon="code" href="/api/routers/settlement">
+    Explore the Settlements API
+  </Card>
+  
+  <Card title="Settling Up Guide" icon="book-open" href="/guides/settling-up">
+    Learn how to settle debts and manage payments
+  </Card>
+</CardGroup>

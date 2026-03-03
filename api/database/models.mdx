@@ -1,0 +1,503 @@
+---
+title: 'Database Models'
+description: 'Detailed documentation of all Prisma models in EquiShare'
+icon: 'table'
+---
+
+## Overview
+
+This page provides detailed documentation for each model in the EquiShare database. Models are organized into two categories: authentication models (required by Next-Auth) and core application models.
+
+## Authentication Models
+
+These models are required by Next-Auth for authentication management.
+
+<Accordion title="User">
+  ### Purpose
+  Represents an authenticated user in the system. Users can create groups, send/receive invites, and become members of shared groups.
+
+  ### Fields
+  <ResponseField name="id" type="String" required>
+    Unique identifier (CUID)
+  </ResponseField>
+
+  <ResponseField name="name" type="String">
+    User's display name
+  </ResponseField>
+
+  <ResponseField name="email" type="String">
+    User's email address (unique)
+  </ResponseField>
+
+  <ResponseField name="emailVerified" type="DateTime">
+    Timestamp when email was verified
+  </ResponseField>
+
+  <ResponseField name="image" type="String">
+    URL to user's profile image
+  </ResponseField>
+
+  ### Relations
+  - `accounts` → Multiple **Account** records (OAuth providers)
+  - `sessions` → Multiple **Session** records (active sessions)
+  - `groups` → **Groups** created by this user
+  - `sentInvites` → **GroupInvites** sent by this user
+  - `receivedInvites` → **GroupInvites** received by this user
+  - `sharedGroups` → **Groups** where user is a member
+
+  ### Indexes
+  - Unique index on `email`
+</Accordion>
+
+<Accordion title="Account">
+  ### Purpose
+  Stores OAuth provider account information for users (e.g., Google, GitHub). Required by Next-Auth.
+
+  ### Fields
+  <ResponseField name="id" type="String" required>
+    Unique identifier (CUID)
+  </ResponseField>
+
+  <ResponseField name="userId" type="String" required>
+    Reference to User
+  </ResponseField>
+
+  <ResponseField name="type" type="String" required>
+    Account type (e.g., "oauth")
+  </ResponseField>
+
+  <ResponseField name="provider" type="String" required>
+    OAuth provider name (e.g., "google", "github")
+  </ResponseField>
+
+  <ResponseField name="providerAccountId" type="String" required>
+    User's ID from the OAuth provider
+  </ResponseField>
+
+  <ResponseField name="refresh_token" type="String">
+    OAuth refresh token
+  </ResponseField>
+
+  <ResponseField name="access_token" type="String">
+    OAuth access token
+  </ResponseField>
+
+  <ResponseField name="expires_at" type="Int">
+    Token expiration timestamp
+  </ResponseField>
+
+  <ResponseField name="token_type" type="String">
+    Type of token (e.g., "Bearer")
+  </ResponseField>
+
+  <ResponseField name="scope" type="String">
+    OAuth scope permissions
+  </ResponseField>
+
+  <ResponseField name="id_token" type="String">
+    OpenID Connect ID token
+  </ResponseField>
+
+  <ResponseField name="session_state" type="String">
+    OAuth session state
+  </ResponseField>
+
+  <ResponseField name="refresh_token_expires_in" type="Int">
+    Refresh token expiration duration
+  </ResponseField>
+
+  ### Relations
+  - `user` → **User** (with cascade delete)
+
+  ### Indexes
+  - Unique compound index on `(provider, providerAccountId)`
+</Accordion>
+
+<Accordion title="Session">
+  ### Purpose
+  Tracks active user sessions for authentication.
+
+  ### Fields
+  <ResponseField name="id" type="String" required>
+    Unique identifier (CUID)
+  </ResponseField>
+
+  <ResponseField name="sessionToken" type="String" required>
+    Unique session token (unique)
+  </ResponseField>
+
+  <ResponseField name="userId" type="String" required>
+    Reference to User
+  </ResponseField>
+
+  <ResponseField name="expires" type="DateTime" required>
+    Session expiration timestamp
+  </ResponseField>
+
+  ### Relations
+  - `user` → **User** (with cascade delete)
+
+  ### Indexes
+  - Unique index on `sessionToken`
+</Accordion>
+
+<Accordion title="VerificationToken">
+  ### Purpose
+  Stores email verification tokens for magic link authentication.
+
+  ### Fields
+  <ResponseField name="identifier" type="String" required>
+    Email or user identifier
+  </ResponseField>
+
+  <ResponseField name="token" type="String" required>
+    Verification token (unique)
+  </ResponseField>
+
+  <ResponseField name="expires" type="DateTime" required>
+    Token expiration timestamp
+  </ResponseField>
+
+  ### Indexes
+  - Unique index on `token`
+  - Unique compound index on `(identifier, token)`
+</Accordion>
+
+## Core Application Models
+
+These models handle the core expense sharing functionality.
+
+<Accordion title="Group">
+  ### Purpose
+  Represents a group of people who share expenses together (e.g., "Roommates", "Vacation 2024").
+
+  ### Fields
+  <ResponseField name="id" type="String" required>
+    Unique identifier (CUID)
+  </ResponseField>
+
+  <ResponseField name="name" type="String" required>
+    Group name
+  </ResponseField>
+
+  <ResponseField name="createdAt" type="DateTime" required>
+    Creation timestamp (auto-generated)
+  </ResponseField>
+
+  <ResponseField name="updatedAt" type="DateTime" required>
+    Last update timestamp (auto-updated)
+  </ResponseField>
+
+  <ResponseField name="createdById" type="String" required>
+    Reference to User who created the group
+  </ResponseField>
+
+  ### Relations
+  - `createdBy` → **User** who created the group
+  - `people` → **People** in this group
+  - `expenses` → **Expenses** in this group
+  - `settlements` → **Settlements** in this group
+  - `members` → **Users** who are members of this group
+  - `invites` → **GroupInvites** for this group
+
+  ### Indexes
+  - Index on `createdById` for fast user group lookups
+</Accordion>
+
+<Accordion title="GroupInvite">
+  ### Purpose
+  Manages group invitation system with token-based access control. Supports reusable invite links with expiration and usage limits.
+
+  ### Fields
+  <ResponseField name="id" type="String" required>
+    Unique identifier (CUID)
+  </ResponseField>
+
+  <ResponseField name="groupId" type="String" required>
+    Reference to Group
+  </ResponseField>
+
+  <ResponseField name="invitedByUserId" type="String" required>
+    Reference to User who created the invite
+  </ResponseField>
+
+  <ResponseField name="inviteToken" type="String" required>
+    Unique token for invite link (unique)
+  </ResponseField>
+
+  <ResponseField name="status" type="InviteStatus" required>
+    Invite status (default: PENDING)
+  </ResponseField>
+
+  <ResponseField name="expiresAt" type="DateTime" required>
+    Expiration timestamp
+  </ResponseField>
+
+  <ResponseField name="createdAt" type="DateTime" required>
+    Creation timestamp (auto-generated)
+  </ResponseField>
+
+  <ResponseField name="updatedAt" type="DateTime" required>
+    Last update timestamp (auto-updated)
+  </ResponseField>
+
+  <ResponseField name="maxUses" type="Int" required>
+    Maximum number of times this invite can be used (default: 10)
+  </ResponseField>
+
+  <ResponseField name="remainingUses" type="Int" required>
+    Number of uses remaining (default: 10)
+  </ResponseField>
+
+  <ResponseField name="invitedUserId" type="String">
+    Reference to User who used this invite (nullable)
+  </ResponseField>
+
+  ### Relations
+  - `group` → **Group** (with cascade delete)
+  - `invitedBy` → **User** who created the invite (with cascade delete)
+  - `usedBy` → **User** who used this invite (nullable, set null on delete)
+
+  ### Indexes
+  - Index on `groupId` for group invite lookups
+  - Index on `inviteToken` for fast token validation
+  - Index on `invitedByUserId` for user's sent invites
+  - Index on `invitedUserId` for user's received invites
+
+  ### Business Logic
+  <Note>
+    Invites automatically transition from PENDING to EXPIRED/USED based on:
+    - `expiresAt` timestamp
+    - `remainingUses` reaching 0
+  </Note>
+</Accordion>
+
+<Accordion title="Person">
+  ### Purpose
+  Represents a participant in a group's expenses. Separate from User to allow:
+  - Non-registered users to participate
+  - Simplified expense tracking
+  - Flexibility in group management
+
+  ### Fields
+  <ResponseField name="id" type="String" required>
+    Unique identifier (CUID)
+  </ResponseField>
+
+  <ResponseField name="name" type="String" required>
+    Person's name
+  </ResponseField>
+
+  <ResponseField name="groupId" type="String" required>
+    Reference to Group
+  </ResponseField>
+
+  <ResponseField name="createdAt" type="DateTime" required>
+    Creation timestamp (auto-generated)
+  </ResponseField>
+
+  <ResponseField name="updatedAt" type="DateTime" required>
+    Last update timestamp (auto-updated)
+  </ResponseField>
+
+  ### Relations
+  - `group` → **Group** (with cascade delete)
+  - `paidExpenses` → **Expenses** paid by this person
+  - `shares` → **Shares** owed by this person
+  - `fromSettlements` → **Settlements** from this person
+  - `toSettlements` → **Settlements** to this person
+
+  ### Indexes
+  - Index on `groupId` for group member lookups
+
+  <Info>
+    **Design Note**: A Person is scoped to a single Group. The same real-world individual would have separate Person records in different groups.
+  </Info>
+</Accordion>
+
+<Accordion title="Expense">
+  ### Purpose
+  Represents a single expense paid by one person and potentially split among multiple people.
+
+  ### Fields
+  <ResponseField name="id" type="String" required>
+    Unique identifier (CUID)
+  </ResponseField>
+
+  <ResponseField name="description" type="String" required>
+    Expense description (e.g., "Dinner at Restaurant")
+  </ResponseField>
+
+  <ResponseField name="amount" type="Float" required>
+    Total expense amount
+  </ResponseField>
+
+  <ResponseField name="groupId" type="String" required>
+    Reference to Group
+  </ResponseField>
+
+  <ResponseField name="paidById" type="String" required>
+    Reference to Person who paid
+  </ResponseField>
+
+  <ResponseField name="settledAmount" type="Float" required>
+    Amount already settled (cached for UI performance, default: 0)
+  </ResponseField>
+
+  <ResponseField name="createdAt" type="DateTime" required>
+    Creation timestamp (auto-generated)
+  </ResponseField>
+
+  <ResponseField name="updatedAt" type="DateTime" required>
+    Last update timestamp (auto-updated)
+  </ResponseField>
+
+  ### Relations
+  - `group` → **Group** (with cascade delete)
+  - `paidBy` → **Person** who paid the expense
+  - `shares` → **Shares** splitting this expense
+  - `settlements` → **Settlements** related to this expense
+
+  ### Indexes
+  - Index on `groupId` for group expense queries
+  - Index on `paidById` for person's paid expenses
+  - Composite index on `(groupId, settledAmount)` for filtering settled/unsettled expenses
+
+  <Note>
+    The `settledAmount` field is derived from settlements but cached for performance. This avoids complex aggregations on every query.
+  </Note>
+</Accordion>
+
+<Accordion title="Share">
+  ### Purpose
+  Represents how much of an expense is owed by a specific person. Used to split expenses unevenly.
+
+  ### Fields
+  <ResponseField name="id" type="String" required>
+    Unique identifier (CUID)
+  </ResponseField>
+
+  <ResponseField name="amount" type="Float" required>
+    Amount owed by this person for the expense
+  </ResponseField>
+
+  <ResponseField name="expenseId" type="String" required>
+    Reference to Expense
+  </ResponseField>
+
+  <ResponseField name="personId" type="String" required>
+    Reference to Person
+  </ResponseField>
+
+  <ResponseField name="createdAt" type="DateTime" required>
+    Creation timestamp (auto-generated)
+  </ResponseField>
+
+  <ResponseField name="updatedAt" type="DateTime" required>
+    Last update timestamp (auto-updated)
+  </ResponseField>
+
+  ### Relations
+  - `expense` → **Expense** (with cascade delete)
+  - `person` → **Person** (with cascade delete)
+
+  ### Indexes
+  - Unique compound index on `(expenseId, personId)` - one share per person per expense
+  - Index on `expenseId` for expense share lookups
+  - Index on `personId` for person's shares
+
+  ### Example
+  ```typescript
+  // Split a $100 dinner unevenly:
+  // Alice pays $100, but only ate $40 worth
+  // Bob owes $60
+  
+  const expense = {
+    amount: 100,
+    paidById: "alice-id",
+    shares: [
+      { personId: "alice-id", amount: 40 },
+      { personId: "bob-id", amount: 60 }
+    ]
+  }
+  ```
+</Accordion>
+
+<Accordion title="Settlement">
+  ### Purpose
+  Represents a payment from one person to another to settle their share of an expense. Tracks both planned and completed settlements.
+
+  ### Fields
+  <ResponseField name="id" type="String" required>
+    Unique identifier (CUID)
+  </ResponseField>
+
+  <ResponseField name="amount" type="Float" required>
+    Settlement amount
+  </ResponseField>
+
+  <ResponseField name="settled" type="Boolean" required>
+    Whether settlement has been completed (default: false)
+  </ResponseField>
+
+  <ResponseField name="groupId" type="String" required>
+    Reference to Group
+  </ResponseField>
+
+  <ResponseField name="fromId" type="String" required>
+    Reference to Person paying
+  </ResponseField>
+
+  <ResponseField name="toId" type="String" required>
+    Reference to Person receiving
+  </ResponseField>
+
+  <ResponseField name="expenseId" type="String" required>
+    Reference to Expense being settled
+  </ResponseField>
+
+  <ResponseField name="createdAt" type="DateTime" required>
+    Creation timestamp (auto-generated)
+  </ResponseField>
+
+  <ResponseField name="updatedAt" type="DateTime" required>
+    Last update timestamp (auto-updated)
+  </ResponseField>
+
+  ### Relations
+  - `group` → **Group** (with cascade delete)
+  - `from` → **Person** paying the settlement
+  - `to` → **Person** receiving the settlement
+  - `expense` → **Expense** being settled (with cascade delete)
+
+  ### Indexes
+  - Index on `groupId` for group settlements
+  - Index on `fromId` for person's outgoing settlements
+  - Index on `toId` for person's incoming settlements
+
+  ### Settlement Workflow
+  <Info>
+    1. When an expense is created, settlements are generated with `settled: false`
+    2. Users mark settlements as complete by setting `settled: true`
+    3. The expense's `settledAmount` is updated based on completed settlements
+  </Info>
+</Accordion>
+
+## Model Relationships Summary
+
+### User-Centric View
+- **User** creates multiple **Groups**
+- **User** sends/receives **GroupInvites**
+- **User** is a member of multiple **Groups** (via `sharedGroups`)
+
+### Group-Centric View
+- **Group** contains multiple **People** (participants)
+- **Group** has multiple **Expenses**
+- **Group** tracks **Settlements** between people
+- **Group** has multiple **GroupInvites**
+
+### Expense Flow
+1. **Expense** is paid by one **Person**
+2. **Shares** split the expense among multiple **People**
+3. **Settlements** track payments from sharers to the payer
+4. When all **Settlements** are marked complete, the expense is fully settled
